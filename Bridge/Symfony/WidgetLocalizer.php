@@ -5,6 +5,7 @@ namespace Omnishield\Bridge\Symfony;
 use Omnishield\ChallengeInterface;
 use Omnishield\LocalizableInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Translation\TranslatorBagInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -14,7 +15,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  * bridge's translation domain "omnishield" - "<gateway>.<text>", French,
  * English, German and Japanese shipped, an application's own catalogue
  * over them -, the gateway's own `strings` option winning over both. A text
- * the catalogue does not hold is left to the widget.
+ * the catalogue does not hold is left to the widget. A regional locale
+ * ("fr_BE") without texts of its own is told to the widget as its language
+ * ("fr"), the texts being the language's.
  */
 final class WidgetLocalizer
 {
@@ -47,6 +50,29 @@ final class WidgetLocalizer
             }
         }
 
-        return $gateway->localized($locale, $strings);
+        return $gateway->localized($this->language($gateway, $locale), $strings);
+    }
+
+    /**
+     * The language the widget is told: the locale whole ("fr_BE") when a
+     * catalogue of that region holds texts of its own, the language alone
+     * ("fr") otherwise - the texts it gets are then the language's, found
+     * through the translator's fallback, and the widget's own words for
+     * that language, if it has any, rather than a region it never heard of.
+     */
+    private function language(LocalizableInterface $gateway, string $locale): string
+    {
+        $language = (string) preg_split('/[-_]/', $locale, 2)[0];
+        if ('' === $language || $language === $locale || !$this->translator instanceof TranslatorBagInterface) {
+            return $locale;
+        }
+        $own = $this->translator->getCatalogue($locale);
+        foreach ($gateway->texts() as $text) {
+            if ($own->defines($gateway->getName().'.'.$text, self::DOMAIN)) {
+                return $locale;
+            }
+        }
+
+        return $language;
     }
 }

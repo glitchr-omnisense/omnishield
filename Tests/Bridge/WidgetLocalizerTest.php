@@ -18,6 +18,7 @@ use Symfony\Component\Form\Forms;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Translation\Loader\ArrayLoader;
 use Symfony\Component\Translation\Loader\YamlFileLoader;
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Yaml\Yaml;
@@ -111,7 +112,7 @@ final class WidgetLocalizerTest extends TestCase
         self::assertCount(\count(AltchaGateway::TEXTS) + 1, $french);
 
         $widget = (new WidgetLocalizer($translator, self::requests('de_CH')))->localize(self::altcha())->widget();
-        self::assertSame('de-ch', $widget->attributes['language'], 'the widget matches it to German');
+        self::assertSame('de', $widget->attributes['language'], 'no texts of de_CH\'s own: the widget is told German');
         self::assertSame('Ich bin kein Roboter', self::registered($widget->inline)['label'], 'the catalogue falls back from de_CH to de');
 
         self::assertSame('ja', self::registered((new WidgetLocalizer($translator, self::requests('ja')))->localize(self::altcha())->widget()->inline)['@language']);
@@ -121,6 +122,32 @@ final class WidgetLocalizerTest extends TestCase
         $portuguese = (new WidgetLocalizer($translator, self::requests('pt')))->localize(self::altcha())->widget();
         self::assertSame('pt', $portuguese->attributes['language']);
         self::assertNull($portuguese->inline);
+    }
+
+    public function testARegionalLocaleIsToldAsItsLanguageUnlessTheRegionHasTextsOfItsOwn(): void
+    {
+        $translator = self::translator();
+
+        // fr_BE, as glitchr/omnibase's core sets it: no Belgian catalogue, so "fr" and the French texts.
+        $belgian = (new WidgetLocalizer($translator, self::requests('fr_BE')))->localize(self::altcha())->widget();
+        self::assertSame('fr', $belgian->attributes['language']);
+        self::assertSame(['fr', 'Je ne suis pas un robot'], [self::registered($belgian->inline)['@language'], self::registered($belgian->inline)['label']], 'registered under the language the widget is told');
+
+        // A region with words of its own: the widget keeps it, and gets those words over the language's.
+        $translator->addLoader('array', new ArrayLoader());
+        $translator->addResource('array', ['altcha' => ['label' => 'Je ne suis pas un robot, une fois']], 'fr_BE', WidgetLocalizer::DOMAIN);
+        $belgian = (new WidgetLocalizer($translator, self::requests('fr_BE')))->localize(self::altcha())->widget();
+        self::assertSame('fr-be', $belgian->attributes['language']);
+        $texts = self::registered($belgian->inline);
+        self::assertSame(['fr-be', 'Je ne suis pas un robot, une fois', 'Vérification…'], [$texts['@language'], $texts['label'], $texts['verifying']], 'its own label, the language\'s other texts');
+
+        // A regional locale of a language no catalogue holds: the language, nothing of ours.
+        $brazilian = (new WidgetLocalizer($translator, self::requests('pt_BR')))->localize(self::altcha())->widget();
+        self::assertSame('pt', $brazilian->attributes['language']);
+        self::assertNull($brazilian->inline);
+
+        // The gateway's own language is never shortened: it is what the site asked.
+        self::assertSame('fr-ca', (new WidgetLocalizer($translator, self::requests('en')))->localize(self::altcha(['language' => 'fr-CA']))->widget()->attributes['language']);
     }
 
     public function testTheGatewaysOwnLanguageAndTextsWin(): void
