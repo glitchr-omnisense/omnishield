@@ -173,7 +173,9 @@ For a form that is not a Symfony form:
 {% set widget = omnishield_widget_data('forms') %}    {# its parts: widget.field, widget.origins, widget.thirdParty #}
 ```
 
-A provider's script is printed once per page, however many widgets and fields.
+A provider's script is printed once per page, however many widgets and fields: with the first
+printed. A field's `omnishield_html` is printed when the field is, so a form's view built and
+thrown away (or a field taken out of the view) leaves the script to the one the page shows.
 
 ## Consent
 

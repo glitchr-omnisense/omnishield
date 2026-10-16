@@ -57,7 +57,9 @@ final class ChallengeType extends AbstractType
         $challenge = $this->registry->challenge($options['gateway']);
         $widget = ($this->localizer?->localize($challenge) ?? $challenge)->widget($options['action']);
         $view->vars['omnishield_widget'] = $widget;
-        $view->vars['omnishield_html'] = $this->printer->print($widget, $options['nonce']);
+        // Printed when the field is: a view built and thrown away (or a field taken out of it)
+        // does not take the provider's script away from the view the page shows.
+        $view->vars['omnishield_html'] = $this->printer->later($widget, $options['nonce']);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

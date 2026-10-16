@@ -26,7 +26,9 @@ What the page shows for a captcha (`ChallengeInterface::widget($action)`).
 
 `html(?string $nonce = null, bool $script = true)` prints it - the nonce of a Content-Security-Policy
 on both scripts; `reachesOthers()` is the question to ask before: `thirdParty` or any `origins`.
-`WidgetPrinter` prints a provider's script once per page, however many forms.
+`WidgetPrinter` prints a provider's script once per page, however many forms, with the first widget
+printed; `later()` gives a widget's markup to print when the page shows it (a `WidgetHtml`, cast to a
+string, `wrap()` to put it between two pieces of markup): a view built and never shown takes no script.
 
 ## Attempt
 
