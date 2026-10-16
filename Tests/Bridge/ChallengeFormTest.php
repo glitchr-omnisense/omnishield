@@ -146,4 +146,26 @@ final class ChallengeFormTest extends TestCase
         $html = $twig->createTemplate('{{ omnishield_widget() }}|{{ omnishield_widget(action: "signup") }}|{{ omnishield_widget_data("tests").field }}')->render();
         self::assertSame('<script src="/stub.js" type="module"></script><stub-widget></stub-widget>|<stub-widget data-action="signup"></stub-widget>|omnishield-token', $html);
     }
+
+    public function testAViewBuiltAndNotShownLeavesTheScriptToTheOneThatIs(): void
+    {
+        $factory = $this->factory();
+        $twig = new Environment(new FilesystemLoader([__DIR__.'/../../Bridge/Symfony/templates', \dirname((string) (new \ReflectionClass(FormExtension::class))->getFileName(), 2).'/Resources/views/Form']));
+        $engine = new TwigRendererEngine(['form_div_layout.html.twig', 'form.html.twig'], $twig);
+        $twig->addRuntimeLoader(new FactoryRuntimeLoader([FormRenderer::class => static fn () => new FormRenderer($engine)]));
+        $twig->addExtension(new FormExtension());
+        $twig->addExtension(new TranslationExtension());
+        $form = $factory->createNamedBuilder('login')->add('captcha', ChallengeType::class, ['action' => 'login'])->getForm();
+
+        // A view made and thrown away first (omnibase's FormProcessor makes one to collect the page's
+        // assets), then the one the page shows: the widget there comes with its script.
+        $form->createView();
+        $html = $twig->createTemplate('{{ form_widget(form.captcha) }}')->render(['form' => $form->createView()]);
+        self::assertSame('<script src="/stub.js" type="module"></script><stub-widget data-action="login"></stub-widget>', trim($html));
+
+        // Two forms on the page shown: the script once, with the first printed.
+        $other = $factory->createNamedBuilder('contact')->add('captcha', ChallengeType::class, ['action' => 'contact'])->getForm();
+        $html = $twig->createTemplate('{{ form_widget(other.captcha) }}')->render(['other' => $other->createView()]);
+        self::assertSame('<stub-widget data-action="contact"></stub-widget>', trim($html));
+    }
 }

@@ -46,6 +46,19 @@ final class ModelTest extends TestCase
         self::assertStringStartsWith('<script', $printer->print($widget), 'the next page');
     }
 
+    public function testAWidgetAskedForLaterTakesTheScriptWhenItIsPrinted(): void
+    {
+        $printer = new WidgetPrinter();
+        $widget = new Widget('altcha', '/altcha.min.js', ['type' => 'module'], 'altcha-widget');
+
+        $unseen = $printer->later($widget);
+        $shown = $printer->later($widget)->wrap('<div data-fallback>', '</div>');
+        self::assertSame('<div data-fallback><script src="/altcha.min.js" type="module"></script><altcha-widget></altcha-widget></div>', (string) $shown, 'the one printed first, not the one asked for first');
+        self::assertSame((string) $shown, (string) $shown, 'read twice, the same markup');
+        self::assertSame('<altcha-widget></altcha-widget>', (string) $unseen);
+        self::assertSame($widget, $unseen->widget);
+    }
+
     public function testAnAttemptIsReadFromTheFormUnderTheWidgetsField(): void
     {
         $widget = new Widget('cf-turnstile-response', action: 'signup');
