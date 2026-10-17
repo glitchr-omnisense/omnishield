@@ -1,5 +1,5 @@
 {
-    "name": "glitchr/omnishield",
+    "name": "omniscient/omnishield",
     "type": "library",
     "description": "Omnishield: one contract for guarding a form - is this token valid (a captcha: ALTCHA, Turnstile, reCAPTCHA), is this content spam (Akismet), are this address, this e-mail, this name known for abuse (StopForumSpam, disposable e-mail domains) - whoever answers; and its Symfony bridge: a form field, a constraint, the ALTCHA challenge's route, a Twig function.",
     "keywords": [
@@ -41,6 +41,9 @@
         "symfony/validator": "^6.4|^7.0|^8.0",
         "symfony/yaml": "^6.4|^7.0|^8.0",
         "twig/twig": "^3.0"
+    },
+    "replace": {
+        "glitchr/omnishield": "self.version"
     },
     "suggest": {
         "omnishield/altcha": "ALTCHA: a proof of work served and checked by the site itself - no third party, no cookie, no consent; the default",

@@ -1,4 +1,4 @@
-# glitchr/omnishield with every gateway package:
+# omniscient/omnishield with every gateway package:
 #
 #   cp .env.dist .env                                          # the keys you have; none is needed
 #   docker compose run --rm omnishield gateways                 # which gateways are installed and configured, what each answers
@@ -20,7 +20,7 @@ name: omnishield-harness
 services:
   omnishield:
     build: .
-    image: glitchr/omnishield-harness
+    image: omniscient/omnishield-harness
     env_file:
       - path: .env
         required: false
