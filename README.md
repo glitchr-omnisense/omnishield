@@ -1,7 +1,11 @@
-# glitchr/omnishield
+# omniscient/omnishield
 
 One contract for guarding a form, whoever answers. Three questions, and a gateway answers the one
 that concerns it:
+
+Published as `omniscient/omnishield` (formerly `glitchr/omnishield`, which this package replaces: a
+`composer.json` that still requires the old name keeps resolving to this package, never both).
+`omniscient/` is the vendor of every family's core; the providers keep theirs (`omnishield/turnstile`...).
 
 - **is this token valid?** - a captcha: ALTCHA, Cloudflare Turnstile, Google reCAPTCHA;
 - **is this content spam?** - a classifier: Akismet;
@@ -65,7 +69,7 @@ a captcha classifies nothing, a list without a key takes no report.
 ## Plain PHP
 
 ```sh
-composer require glitchr/omnishield omnishield/altcha omnishield/disposable
+composer require omniscient/omnishield omnishield/altcha omnishield/disposable
 ```
 
 ```php
@@ -111,7 +115,7 @@ docker compose run --rm omnishield test
 
 ## Responsibility
 
-`glitchr/omnishield` and its `omnishield/*` providers are independent, unofficial clients: none is
+`omniscient/omnishield` and its `omnishield/*` providers are independent, unofficial clients: none is
 affiliated with, endorsed by or sponsored by the services it reaches. Each service keeps its own
 terms (accounts and keys, rate limits, commercial or non-commercial use, what becomes of the
 visitors' data), named with a link in the "Responsibility" section of the README of each provider

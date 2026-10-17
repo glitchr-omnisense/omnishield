@@ -6,7 +6,7 @@ order: 1
 # Installation and a first form
 
 ```sh
-composer require glitchr/omnishield omnishield/altcha        # a captcha the site issues and checks itself: no key, no third party
+composer require omniscient/omnishield omnishield/altcha     # a captcha the site issues and checks itself: no key, no third party
 composer require omnishield/disposable                      # disposable e-mail domains: a list, no call
 composer require omnishield/turnstile omnishield/recaptcha   # Cloudflare's, Google's captcha
 composer require omnishield/akismet omnishield/stopforumspam # a spam classifier, a list of reported abusers

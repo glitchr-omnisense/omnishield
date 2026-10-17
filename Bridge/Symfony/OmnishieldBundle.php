@@ -71,7 +71,7 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_it
  *
  * Each piece is registered only when its component is installed - Form,
  * Validator, Routing and HttpFoundation, Twig: none is required by
- * glitchr/omnishield.
+ * omniscient/omnishield.
  */
 final class OmnishieldBundle extends AbstractBundle
 {
