@@ -109,10 +109,27 @@ final class BareTest extends TestCase
     {
         // Composer includes every installed package's "files" (Twig's functions, here installed for the
         // bridge's tests) before anything runs: loaded by the autoloader, not by Omnishield.
-        $eager = require \dirname((string) (new \ReflectionClass(\Composer\Autoload\ClassLoader::class))->getFileName()).'/autoload_files.php';
+        $eager = require self::vendorDir().'/composer/autoload_files.php';
         $files = array_diff(array_map('realpath', $report['files']), array_map('realpath', array_values($eager)));
 
         return [...array_values(preg_grep(self::FRAMEWORK, $report['symbols'])), ...array_values(preg_grep(self::FRAMEWORK_FILES, $files))];
+    }
+
+    /**
+     * The vendor directory Omnishield is loaded from in this run. Not the one of
+     * Composer's ClassLoader class: under symfony/phpunit-bridge (an application's
+     * simple-phpunit) that class is the copy of PHPUnit's own install, whose
+     * autoloader knows neither Omnishield nor the HTTP client - the script
+     * failed there on MockHttpClient, and the bundle was not found.
+     */
+    private static function vendorDir(): string
+    {
+        foreach (\Composer\Autoload\ClassLoader::getRegisteredLoaders() as $vendorDir => $loader) {
+            if ($loader->findFile(Registry::class)) {
+                return $vendorDir;
+            }
+        }
+        self::fail('No registered autoloader knows '.Registry::class.'.');
     }
 
     /**
@@ -124,7 +141,7 @@ final class BareTest extends TestCase
      */
     private static function php(array $arguments): array
     {
-        $autoload = \dirname((string) (new \ReflectionClass(\Composer\Autoload\ClassLoader::class))->getFileName(), 2).'/autoload.php';
+        $autoload = self::vendorDir().'/autoload.php';
         $process = proc_open([\PHP_BINARY, ...$arguments], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, null, ['OMNISHIELD_AUTOLOAD' => $autoload] + getenv());
         self::assertIsResource($process);
         $out = (string) stream_get_contents($pipes[1]);
