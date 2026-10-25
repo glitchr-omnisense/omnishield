@@ -3,14 +3,14 @@ title: Errors
 order: 50
 ---
 
-## Errors
+# Errors
 
 A visitor who fails a captcha, a comment that is spam, an address that is listed: none of them is
 an exception. They are answers - a `Verdict` that did not pass, a `Classification` labelled spam, a
 known `Reputation`. Exceptions are for what decided nothing: a provider that did not answer, a key
 it refused, a configuration to fix.
 
-### The exceptions
+## The exceptions
 
 Every exception Omnishield throws implements `Omnishield\Exception\OmnishieldException` (a
 `\Throwable`):
@@ -43,7 +43,7 @@ captcha is named and `omnishield.challenge.gateway` is unset (as does `omnishiel
 Symfony's `UnexpectedValueException` for a value that is not a string; `ChallengeController` a 404
 for a gateway that issues no challenge.
 
-### What to catch where
+## What to catch where
 
 | Where | Catch |
 |---|---|

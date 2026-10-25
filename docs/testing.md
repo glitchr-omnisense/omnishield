@@ -3,12 +3,12 @@ title: Testing
 order: 60
 ---
 
-## Testing
+# Testing
 
 Testing an application that guards its forms with Omnishield. Writing a gateway and its
 conformance suite: [Writing a gateway](gateways.md#writing-a-gateway).
 
-### The fixed gateway
+## The fixed gateway
 
 `Omnishield\Testing\FixedGateway` always says the same: it passes every token, every submission and
 every identity, or refuses them all - and it answers the three questions, so one configuration
@@ -77,7 +77,7 @@ names: forms, strict, emails; factories: fixed, disposable
 (run in the workspace on 2026-10-26, offline; `pass` given as the string `"false"`, as an
 environment variable would give it)
 
-### A provider on recorded answers
+## A provider on recorded answers
 
 To test the application's handling of a real provider's answers - and of its failures - give the
 provider's factory a `MockHttpClient` (symfony/http-client): each gateway that calls a provider takes
@@ -104,13 +104,13 @@ headers where they matter): a site's tests can read the same shapes. ALTCHA call
 challenge with `altcha-org/altcha`'s own `solveChallenge()`, as the [installation](installation.md)
 script does - and the disposable list reads a file (point `list` at a small file of the test's).
 
-### Spent tokens
+## Spent tokens
 
 `InMemoryReplayStore` takes a clock (`fn () => $now`), so a test moves time rather than waiting;
 `count()` says how many tokens it keeps. In a Symfony functional test the store is the service
 `Omnishield\Replay\ReplayStoreInterface`.
 
-### The conformance suite
+## The conformance suite
 
 `Omnishield\Testing\GatewayContractTests` is the family's contract as PHPUnit tests, run by every
 gateway package and by `Tests/FixedGatewayContractTest.php` here: [Conformance

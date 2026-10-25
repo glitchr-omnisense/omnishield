@@ -3,7 +3,7 @@ title: Symfony
 order: 15
 ---
 
-## Symfony
+# Symfony
 
 Omnishield runs without a framework ([installation](installation.md)); in a Symfony application its
 bridge does the wiring. Its components - `symfony/config`, `symfony/dependency-injection`,
@@ -66,7 +66,7 @@ What is autowired:
 Nothing is built when the container compiles: a gateway is built the first time it is asked
 for, and an option left empty only shows then (`InvalidConfigException`).
 
-### The configuration tree
+## The configuration tree
 
 As Symfony's Config component resolves it (the bundle's `configure()`, dumped with
 `YamlReferenceDumper` in the workspace on 2026-10-26):
@@ -110,7 +110,7 @@ omnishield:
 | `replay.service` | service id or null | `null` | a `ReplayStoreInterface` of the application's |
 | `replay.pool` | service id or null | `cache.app` | a PSR-6 pool for `CacheReplayStore`; a missing service: `InMemoryReplayStore` |
 
-### Services
+## Services
 
 | Service id | Registered when | |
 |---|---|---|
@@ -132,7 +132,7 @@ With TwigBundle, the bundle prepends Twig's configuration: the namespace `@Omnis
 A class of the application implementing `GatewayFactoryInterface` is autoconfigured with the tag
 `omnishield.gateway_factory`. The bundle registers no console command and dispatches no event.
 
-### A captcha in a form
+## A captcha in a form
 
 ```php
 use Omnishield\Bridge\Symfony\Form\ChallengeType;
@@ -180,7 +180,7 @@ The visitor's address is the request's `getClientIp()`: behind a proxy, set
 `framework.trusted_proxies`. A key the provider refuses is thrown (`InvalidKeyException`): it is
 the site's error, not the visitor's.
 
-### The ALTCHA challenge's route
+## The ALTCHA challenge's route
 
 The ALTCHA widget carries its challenge in the page by default. A page that is cached - by a
 reverse proxy, by the browser - would serve everyone the same challenge: let the widget fetch a
@@ -204,7 +204,7 @@ omnishield:
 challenge, `Cache-Control: no-store`; 404 for a gateway that issues none. The controller is a plain
 class: no `AbstractController`, nothing of FrameworkBundle.
 
-### The widget's script, from the site
+## The widget's script, from the site
 
 omnishield/altcha ships its widget's script (`public/altcha.min.js`, the npm package's file, MIT).
 The bundle serves it at `/omnishield/altcha/3.3.0/altcha.min.js` - answered before routing, cached a
@@ -213,7 +213,7 @@ year, with no route to import and no asset pipeline (`ScriptListener`) - and mak
 empty. `serve_scripts: false` leaves the package's default (jsDelivr); a `script` option given is
 the application's.
 
-### The widget's language
+## The widget's language
 
 A gateway whose widget takes texts (`LocalizableInterface`: ALTCHA) is printed in the request's
 language, by the form type and by `omnishield_widget()` alike (`WidgetLocalizer`): its texts come
@@ -224,7 +224,7 @@ overrides any text, or adds a language; a language nobody translated leaves the 
 English. A gateway's `language` option fixes its language whatever the visitor's, its `strings`
 option wins over the catalogues. Without `symfony/translation`, nothing changes.
 
-### Twig
+## Twig
 
 For a form that is not a Symfony form:
 
@@ -243,7 +243,7 @@ A provider's script is printed once per page, however many widgets and fields: w
 printed. A field's `omnishield_html` is printed when the field is, so a form's view built and
 thrown away (or a field taken out of the view) leaves the script to the one the page shows.
 
-### Consent
+## Consent
 
 Turnstile and reCAPTCHA reach a third party (`widget.reachesOthers()`), and reCAPTCHA sets a
 cookie: their widget is loaded once the visitor agreed, and a form whose visitor refused needs

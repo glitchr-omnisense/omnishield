@@ -3,12 +3,12 @@ title: Models
 order: 20
 ---
 
-## Models
+# Models
 
 All models are `readonly`; times are `DateTimeImmutable`. They carry strings and dates - never an
 account, an entity or a request: the application fills them from its own.
 
-### Widget
+## Widget
 
 What the page shows for a captcha (`ChallengeInterface::widget($action)`).
 
@@ -30,7 +30,7 @@ on both scripts; `reachesOthers()` is the question to ask before: `thirdParty` o
 printed; `later()` gives a widget's markup to print when the page shows it (a `WidgetHtml`, cast to a
 string, `wrap()` to put it between two pieces of markup): a view built and never shown takes no script.
 
-### Attempt
+## Attempt
 
 A token to check (`ChallengeInterface::verify()`).
 
@@ -45,7 +45,7 @@ A token to check (`ChallengeInterface::verify()`).
 (trimmed; a value that is not a string reads as `''`) and takes its action; `isEmpty()` is true for
 `''`.
 
-### Verdict
+## Verdict
 
 What a captcha said of a token.
 
@@ -63,7 +63,7 @@ reasons are its constants: `Verdict::MISSING`, `INVALID`, `EXPIRED`, `DUPLICATE`
 `ACTION`, `HOSTNAME`, `SCORE`; a verdict passes exactly when it has none (the conformance suite
 checks it of every gateway).
 
-### Submission
+## Submission
 
 What a visitor submitted, as a classifier reads it.
 
@@ -80,7 +80,7 @@ What a visitor submitted, as a classifier reads it.
 
 `identity()` gives the submitter as a list reads them.
 
-### Classification
+## Classification
 
 | Property | |
 |---|---|
@@ -92,13 +92,13 @@ What a visitor submitted, as a classifier reads it.
 
 `Label` is a string enum: `HAM` (`ham`), `SPAM` (`spam`), `FLAGRANT` (`flagrant`).
 
-### Identity
+## Identity
 
 `ip`, `email`, `name` - any may be missing. `domain()` gives the e-mail's domain (after its last
 `@`), lower case, without a trailing dot, or null; `isEmpty()` is true when all three are null or
 empty (a list then answers unknown without asking).
 
-### Reputation
+## Reputation
 
 What a list knows of an identity.
 
@@ -114,7 +114,7 @@ What a list knows of an identity.
 `matched($part)`, `Reputation::unknown($data = [])`, `toArray()`. The parts are its constants:
 `Reputation::IP`, `EMAIL`, `NAME`, `DISPOSABLE`, `TOR`.
 
-### Capabilities
+## Capabilities
 
 What a gateway is, before it is asked anything (`$gateway->capabilities()`).
 
@@ -130,7 +130,7 @@ What a gateway is, before it is asked anything (`$gateway->capabilities()`).
 `questions()` lists `challenge`, `classifier`, `reputation` as claimed; `toArray()` gives them with
 every property. Defaults: every question false, `thirdParty` true, everything else false or empty.
 
-### Answer
+## Answer
 
 `Omnishield\Http\Answer` is the one place the gateways call a provider through:
 `Answer::send($http, $provider, $method, $url, $options)` (a 10-second timeout unless the options

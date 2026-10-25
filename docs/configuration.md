@@ -3,9 +3,9 @@ title: Configuration reference
 order: 40
 ---
 
-## Configuration reference
+# Configuration reference
 
-### The registry's configuration
+## The registry's configuration
 
 `new Registry($factories, $config)`, the bundle's `omnishield.gateways` ([Symfony](symfony.md#the-configuration-tree))
 and `config/omnishield.php`'s `gateways` ([Laravel](laravel.md)) take the same shape: gateway name
@@ -35,7 +35,7 @@ options (two Akismet sites, a strict and a lenient StopForumSpam).
 An unknown gateway, or a factory not installed, is an `InvalidConfigException` naming what is
 configured or installed.
 
-### How options are read
+## How options are read
 
 A factory fills a `Config` (an `ArrayObject`): the options given, its defaults under them
 (`defaults()` sets a key only when it is not set), and its required keys, checked by
@@ -54,7 +54,7 @@ Reserved keys start with `omnishield.`: `omnishield.factory_name`, `omnishield.f
 `omnishield.required_options`. Given in the options they win over the factory's (a required
 option made optional, say) - a way to adapt one gateway without writing a factory.
 
-### Every provider's options
+## Every provider's options
 
 Each provider's manual explains its options; the table lists them as each factory declares them,
 with their defaults.
@@ -74,7 +74,7 @@ that call a provider (`?HttpClientInterface $http`, `HttpClient::create()` when 
 store of spent tokens for ALTCHA (`?ReplayStoreInterface $replays`, `InMemoryReplayStore` when none
 is given).
 
-### The store of spent tokens
+## The store of spent tokens
 
 | Class | Constructor | |
 |---|---|---|
