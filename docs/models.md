@@ -1,14 +1,14 @@
 ---
 title: Models
-order: 2
+order: 20
 ---
 
-# Models
+## Models
 
 All models are `readonly`; times are `DateTimeImmutable`. They carry strings and dates - never an
 account, an entity or a request: the application fills them from its own.
 
-## Widget
+### Widget
 
 What the page shows for a captcha (`ChallengeInterface::widget($action)`).
 
@@ -30,7 +30,7 @@ on both scripts; `reachesOthers()` is the question to ask before: `thirdParty` o
 printed; `later()` gives a widget's markup to print when the page shows it (a `WidgetHtml`, cast to a
 string, `wrap()` to put it between two pieces of markup): a view built and never shown takes no script.
 
-## Attempt
+### Attempt
 
 A token to check (`ChallengeInterface::verify()`).
 
@@ -41,10 +41,11 @@ A token to check (`ChallengeInterface::verify()`).
 | `action` | the action the token must have been made for; `null`: not checked |
 | `hostname` | the host the widget must have been shown on; `null`: not checked |
 
-`Attempt::fromPost($_POST, $widget, $ip, $hostname)` reads the token under the widget's field and
-takes its action.
+`Attempt::fromPost($_POST, $widget, $ip, $hostname)` reads the token under the widget's field
+(trimmed; a value that is not a string reads as `''`) and takes its action; `isEmpty()` is true for
+`''`.
 
-## Verdict
+### Verdict
 
 What a captcha said of a token.
 
@@ -57,9 +58,12 @@ What a captcha said of a token.
 | `reasons` | why it did not pass, in the family's words: `missing`, `invalid`, `expired`, `duplicate`, `spent` (expired or used: the provider does not say which), `action`, `hostname`, `score` |
 | `codes` | the provider's own error codes or reasons: `timeout-or-duplicate`, `DUPE`, `AUTOMATION` |
 
-`Verdict::fail($reason, $codes)`, `failedFor($reason)`, `toArray()`.
+`Verdict::fail($reason, $codes)`, `failedFor($reason)`, `toArray()` (`at` as an ATOM date). The
+reasons are its constants: `Verdict::MISSING`, `INVALID`, `EXPIRED`, `DUPLICATE`, `SPENT`,
+`ACTION`, `HOSTNAME`, `SCORE`; a verdict passes exactly when it has none (the conformance suite
+checks it of every gateway).
 
-## Submission
+### Submission
 
 What a visitor submitted, as a classifier reads it.
 
@@ -76,7 +80,7 @@ What a visitor submitted, as a classifier reads it.
 
 `identity()` gives the submitter as a list reads them.
 
-## Classification
+### Classification
 
 | Property | |
 |---|---|
@@ -86,11 +90,15 @@ What a visitor submitted, as a classifier reads it.
 
 `isSpam()` (spam or flagrant), `isFlagrant()`, `Classification::ham()`.
 
-## Identity
+`Label` is a string enum: `HAM` (`ham`), `SPAM` (`spam`), `FLAGRANT` (`flagrant`).
 
-`ip`, `email`, `name` - any may be missing. `domain()` gives the e-mail's domain, lower case.
+### Identity
 
-## Reputation
+`ip`, `email`, `name` - any may be missing. `domain()` gives the e-mail's domain (after its last
+`@`), lower case, without a trailing dot, or null; `isEmpty()` is true when all three are null or
+empty (a list then answers unknown without asking).
+
+### Reputation
 
 What a list knows of an identity.
 
@@ -103,9 +111,10 @@ What a list knows of an identity.
 | `reasons` | which parts matched: `ip`, `email`, `name`, and `disposable`, `tor` |
 | `data` | what the list answered, part by part |
 
-`matched($part)`, `Reputation::unknown()`, `toArray()`.
+`matched($part)`, `Reputation::unknown($data = [])`, `toArray()`. The parts are its constants:
+`Reputation::IP`, `EMAIL`, `NAME`, `DISPOSABLE`, `TOR`.
 
-## Capabilities
+### Capabilities
 
 What a gateway is, before it is asked anything (`$gateway->capabilities()`).
 
@@ -117,3 +126,15 @@ What a gateway is, before it is asked anything (`$gateway->capabilities()`).
 | `actions` | whether it checks the action a token was made for |
 | `reports` | whether it takes reports back |
 | `reads` | what of an Identity a list reads: `ip`, `email`, `name` |
+
+`questions()` lists `challenge`, `classifier`, `reputation` as claimed; `toArray()` gives them with
+every property. Defaults: every question false, `thirdParty` true, everything else false or empty.
+
+### Answer
+
+`Omnishield\Http\Answer` is the one place the gateways call a provider through:
+`Answer::send($http, $provider, $method, $url, $options)` (a 10-second timeout unless the options
+give one) returns the status, the headers (lower-case names) and the body; no connection, a
+timeout, HTTP 5xx and 429 are an `UnreachableException` naming the provider. `header($name)` reads
+one header, `json()` the body as a JSON object (anything else: a `ProviderException`). A gateway of
+your own calls through it too ([Writing a gateway](gateways.md#writing-a-gateway)).

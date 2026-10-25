@@ -1,9 +1,9 @@
 ---
 title: Privacy
-order: 5
+order: 35
 ---
 
-# Privacy: who sees what
+## Privacy: who sees what
 
 A guard looks at a visitor - their address, what they wrote, how their browser behaves. Where
 that goes depends on the gateway, and so do what the site's privacy policy says and whether the
@@ -18,7 +18,7 @@ visitor is asked first.
 | `stopforumspam` | the address, the e-mail (hashed: MD5 by default), the name - what `send` lists | StopForumSpam | - | - |
 | `disposable` | nothing: the list is a file of the package | - | - | - |
 
-## What the CNIL says of captchas
+### What the CNIL says of captchas
 
 The CNIL's questions and answers on cookies and other trackers (question 17, "Le consentement des
 utilisateurs doit-il être recueilli pour l'utilisation de systèmes anti-robot ou « CAPTCHA » ?",
@@ -50,7 +50,7 @@ What follows for a site built on Omnishield - read as the CNIL's answer, not as 
   what is sent and why (protecting the forms), and keep StopForumSpam off unless the site wants
   it - its address goes to a third party at each check.
 
-## Asking for consent with Omnishield's widgets
+### Asking for consent with Omnishield's widgets
 
 ```php
 $widget = $registry->challenge('forms')->widget('contact');
