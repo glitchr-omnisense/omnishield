@@ -59,12 +59,17 @@ a captcha classifies nothing, a list without a key takes no report.
 
 ## Documentation
 
+The manual, in `docs/` (one page on the site, in this order):
+
+- [Overview](docs/index.md): the three questions, the providers and what each one does
 - [Installation and a first form](docs/installation.md)
+- [Symfony](docs/symfony.md): the configuration tree, the services, the form field, the constraint, the route, Twig; [Laravel](docs/laravel.md)
 - [Models](docs/models.md)
 - [The three questions: the contracts, the gateways, writing one](docs/gateways.md)
-- [Symfony: the bundle, the form field, the constraint, the route, Twig](docs/symfony.md)
 - [Privacy: who sees what, cookies, consent](docs/privacy.md)
+- [Configuration reference](docs/configuration.md), [Errors](docs/errors.md), [Testing](docs/testing.md)
 - [The Docker harness: the console, bare PHP](docs/harness.md)
+- [Verified, and not](docs/verified.md)
 
 ## Plain PHP
 

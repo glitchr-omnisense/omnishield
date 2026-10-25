@@ -1,9 +1,9 @@
 ---
 title: Installation
-order: 1
+order: 10
 ---
 
-# Installation and a first form
+## Installation
 
 ```sh
 composer require omniscient/omnishield omnishield/altcha     # a captcha the site issues and checks itself: no key, no third party
@@ -12,7 +12,17 @@ composer require omnishield/turnstile omnishield/recaptcha   # Cloudflare's, Goo
 composer require omnishield/akismet omnishield/stopforumspam # a spam classifier, a list of reported abusers
 ```
 
-PHP 8.2 or later.
+### Requirements
+
+- PHP 8.2 or later.
+- `omniscient/omnishield` requires `symfony/http-client-contracts` (^3.0) and nothing else.
+- `omnishield/turnstile`, `omnishield/recaptcha`, `omnishield/akismet` and `omnishield/stopforumspam`
+  require `symfony/http-client` (6.4, 7 or 8); `omnishield/altcha` requires `altcha-org/altcha`
+  (^2.3) and no HTTP client; `omnishield/disposable` requires nothing more.
+- Suggested, for what uses them: `psr/cache` (`CacheReplayStore`), `phpunit/phpunit` and
+  `symfony/http-client` (the conformance suite), and for the Symfony bridge `symfony/config`,
+  `symfony/dependency-injection`, `symfony/http-kernel`, `symfony/form`, `symfony/validator`,
+  `symfony/routing`, `symfony/translation`, `twig/twig`.
 
 Omnishield needs no framework. The core requires PHP and `symfony/http-client-contracts` - the
 HTTP client's interfaces, no client; a gateway that calls a provider requires
@@ -20,7 +30,7 @@ HTTP client's interfaces, no client; a gateway that calls a provider requires
 given one. It runs the same in plain PHP, in a worker, in Laravel or Slim, and in Symfony, where a
 bundle does the wiring ([Symfony](symfony.md)).
 
-## Plain PHP
+### Plain PHP
 
 ```php
 <?php // guard.php
@@ -96,7 +106,7 @@ No class of a framework is loaded on the way - a test of this package checks it 
 its own (`Tests/BareTest.php`), and so does `docker compose run --rm omnishield bare`
 ([harness](harness.md)).
 
-## What the application does around a gateway
+### What the application does around a gateway
 
 1. **Show** the captcha's widget in the form - `$widget->html()`, or its parts in your own markup.
    When it reaches a third party (`$widget->reachesOthers()`: Turnstile, reCAPTCHA), name it and
@@ -111,7 +121,7 @@ its own (`Tests/BareTest.php`), and so does `docker compose run --rm omnishield 
 The address is the visitor's as your application sees it: behind a proxy or a load balancer, the
 one it forwarded (Symfony: `trusted_proxies`), not the proxy's.
 
-## A shared store of spent tokens
+### A shared store of spent tokens
 
 ALTCHA cannot tell a solution it saw before: the gateway remembers each one in a
 `ReplayStoreInterface` until it would have lapsed. `InMemoryReplayStore` remembers within one
@@ -129,24 +139,18 @@ A PSR-6 pool has no atomic "add if absent": two requests posting the same soluti
 same microseconds could both pass. Where that matters, implement `ReplayStoreInterface::spend()` on
 something atomic - a table with a unique key, Redis's `SET NX`.
 
-## In a framework
+### In a framework
 
 - **Symfony**: `Omnishield\Bridge\Symfony\OmnishieldBundle` registers the factories, builds the
   registry from `config/packages/omnishield.yaml`, makes each gateway injectable by its name, and
   gives a form field, a constraint, a route and a Twig function: see [Symfony](symfony.md).
+- **Laravel**: omnibridge/laravel's `Shield\ShieldServiceProvider` builds the registry from
+  `config/omnishield.php` (the same keys) with the gateways that call no provider: see
+  [Laravel](laravel.md).
 - **Any other**: build the `Registry` once, where the framework builds its services, as the script
   above does; give it the framework's HTTP client and a shared store.
 
-## Errors
+### Errors
 
-| Exception | When |
-|---|---|
-| `UnreachableException` | the provider did not answer: no connection, a timeout, a server error, a quota exceeded. Nothing was decided |
-| `InvalidKeyException` | the provider refused the site's key or secret: the configuration is wrong, whatever the visitor did |
-| `ProviderException` | the provider answered with an error rather than a verdict (both above extend it) |
-| `InvalidConfigException` | a gateway not configured, a factory not installed, an option missing, a submission without what the provider needs |
-| `NotSupportedException` | the gateway does not answer that question, or does not take reports |
-
-All implement `Omnishield\Exception\OmnishieldException`. Every gateway maps its provider's HTTP
-status the same way: 5xx and 429 are an `UnreachableException`, 401 and 403 an
-`InvalidKeyException` (a gateway that sends no key: a `ProviderException`).
+A provider that does not answer, a key it refuses, an option missing: [Errors](errors.md) lists
+every exception and when each is thrown.
