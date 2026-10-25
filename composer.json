@@ -52,6 +52,8 @@
         "omnishield/akismet": "Akismet: is this content spam - comment-check, submit-spam, submit-ham",
         "omnishield/stopforumspam": "StopForumSpam: are this IP address, this e-mail, this name reported for abuse",
         "omnishield/disposable": "Disposable e-mail domains: a free list shipped in the package, no call",
+        "phpunit/phpunit": "Omnishield\\Testing\\GatewayContractTests: the family's conformance suite, run by every gateway package's tests (with symfony/http-client)",
+        "symfony/http-client": "Omnishield\\Testing\\GatewayContractTests hands the gateway under test a MockHttpClient",
         "psr/cache": "A spent token remembered in a PSR-6 pool (Omnishield\\Replay\\CacheReplayStore) rather than in this process's memory",
         "symfony/config": "In a Symfony application: the configuration of Omnishield\\Bridge\\Symfony\\OmnishieldBundle",
         "symfony/dependency-injection": "In a Symfony application: the services of Omnishield\\Bridge\\Symfony\\OmnishieldBundle",

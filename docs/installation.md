@@ -147,4 +147,6 @@ something atomic - a table with a unique key, Redis's `SET NX`.
 | `InvalidConfigException` | a gateway not configured, a factory not installed, an option missing, a submission without what the provider needs |
 | `NotSupportedException` | the gateway does not answer that question, or does not take reports |
 
-All implement `Omnishield\Exception\OmnishieldException`.
+All implement `Omnishield\Exception\OmnishieldException`. Every gateway maps its provider's HTTP
+status the same way: 5xx and 429 are an `UnreachableException`, 401 and 403 an
+`InvalidKeyException` (a gateway that sends no key: a `ProviderException`).
