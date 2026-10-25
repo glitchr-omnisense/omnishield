@@ -3,7 +3,7 @@ title: Laravel
 order: 16
 ---
 
-## Laravel
+# Laravel
 
 omnibridge/laravel, the bridge that hosts omnibase in Laravel, has an Omnishield provider:
 `Omnibridge\Laravel\Shield\ShieldServiceProvider`. `OmnibridgeServiceProvider` registers it when
@@ -39,7 +39,7 @@ return [
 > host and refuses it under the other when a provider does not answer. With the factories Laravel
 > registers today (below) no gateway calls a provider, so none is ever unreachable.
 
-### What it binds
+## What it binds
 
 | Binding | |
 |---|---|

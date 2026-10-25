@@ -3,9 +3,9 @@ title: Verified, and not
 order: 90
 ---
 
-## Verified, and not
+# Verified, and not
 
-### What the tests prove
+## What the tests prove
 
 Run on 2026-10-26 in the workspace (every package from its checkout, PHP 8.4, PHPUnit 11.5,
 offline): 159 tests, 1231 assertions, green. Each of the six gateways runs the conformance suite
@@ -33,7 +33,7 @@ registry's errors, the bundle's configuration tree, and each provider's example.
 page's script is the exception: its output is the one of 2026-10-07, when Cloudflare and
 StopForumSpam were called for real.
 
-### Against the providers
+## Against the providers
 
 Each provider's manual says what was verified for real. In short (from their manuals): Turnstile's
 three testing keys and reCAPTCHA v2's test keys against `siteverify`, and StopForumSpam's lookups,
@@ -41,14 +41,14 @@ called for real on 2026-10-07; ALTCHA's whole way in PHP, and its script compare
 Akismet, reCAPTCHA v3 and Enterprise, and StopForumSpam's reports not, for want of a key; no widget
 run in a browser.
 
-### What is not verified
+## What is not verified
 
 - A widget in a browser: the markup follows each provider's documentation and README.
 - `CacheReplayStore` under concurrent requests (a PSR-6 pool has no atomic add).
 - The [Laravel](laravel.md) page was written from omnibridge/laravel's code, not run in a Laravel
   application.
 
-### Responsibility
+## Responsibility
 
 `omniscient/omnishield` and its `omnishield/*` providers are independent, unofficial clients: none
 is affiliated with, endorsed by or sponsored by the services it reaches. Each service keeps its own

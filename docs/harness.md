@@ -3,7 +3,7 @@ title: The Docker harness
 order: 70
 ---
 
-## The Docker harness
+# The Docker harness
 
 `docker/` runs this package with every `omnishield/*` gateway installed - from GitHub (branch
 1.x), or from the checkouts beside this one when `OMNISHIELD_PLUGINS=../..` is set in
@@ -48,7 +48,7 @@ $ T=$(docker compose run --rm -T omnishield solve altcha --action contact)
 $ docker compose run --rm omnishield verify altcha "$T" --action contact     # passes: each run has its own memory of spent tokens
 ```
 
-### Bare: no bundle, no container
+## Bare: no bundle, no container
 
 The console is a `symfony/console` application over a registry built by hand; `bare` is less
 still - one PHP script, `docker/harness/bin/bare`, that requires the autoloader and nothing else.
@@ -102,7 +102,7 @@ The image is `php:8.4-cli-alpine` with Composer; the harness's packages live in 
 volume of the `omnishield-harness` project. The gateways are cloned from GitHub as plain git
 repositories over HTTPS: no GitHub API, no ssh in the image.
 
-### The workspace, without the harness
+## The workspace, without the harness
 
 The packages also sit side by side in a Composer workspace (`~/Sites/omnishield`: a `composer.json`
 whose path repositories link `core` and the six providers into one `vendor/`, and a

@@ -3,7 +3,7 @@ title: Installation
 order: 10
 ---
 
-## Installation
+# Installation
 
 ```sh
 composer require omniscient/omnishield omnishield/altcha     # a captcha the site issues and checks itself: no key, no third party
@@ -12,7 +12,7 @@ composer require omnishield/turnstile omnishield/recaptcha   # Cloudflare's, Goo
 composer require omnishield/akismet omnishield/stopforumspam # a spam classifier, a list of reported abusers
 ```
 
-### Requirements
+## Requirements
 
 - PHP 8.2 or later.
 - `omniscient/omnishield` requires `symfony/http-client-contracts` (^3.0) and nothing else.
@@ -30,7 +30,7 @@ HTTP client's interfaces, no client; a gateway that calls a provider requires
 given one. It runs the same in plain PHP, in a worker, in Laravel or Slim, and in Symfony, where a
 bundle does the wiring ([Symfony](symfony.md)).
 
-### Plain PHP
+## Plain PHP
 
 ```php
 <?php // guard.php
@@ -106,7 +106,7 @@ No class of a framework is loaded on the way - a test of this package checks it 
 its own (`Tests/BareTest.php`), and so does `docker compose run --rm omnishield bare`
 ([harness](harness.md)).
 
-### What the application does around a gateway
+## What the application does around a gateway
 
 1. **Show** the captcha's widget in the form - `$widget->html()`, or its parts in your own markup.
    When it reaches a third party (`$widget->reachesOthers()`: Turnstile, reCAPTCHA), name it and
@@ -121,7 +121,7 @@ its own (`Tests/BareTest.php`), and so does `docker compose run --rm omnishield 
 The address is the visitor's as your application sees it: behind a proxy or a load balancer, the
 one it forwarded (Symfony: `trusted_proxies`), not the proxy's.
 
-### A shared store of spent tokens
+## A shared store of spent tokens
 
 ALTCHA cannot tell a solution it saw before: the gateway remembers each one in a
 `ReplayStoreInterface` until it would have lapsed. `InMemoryReplayStore` remembers within one
@@ -139,7 +139,7 @@ A PSR-6 pool has no atomic "add if absent": two requests posting the same soluti
 same microseconds could both pass. Where that matters, implement `ReplayStoreInterface::spend()` on
 something atomic - a table with a unique key, Redis's `SET NX`.
 
-### In a framework
+## In a framework
 
 - **Symfony**: `Omnishield\Bridge\Symfony\OmnishieldBundle` registers the factories, builds the
   registry from `config/packages/omnishield.yaml`, makes each gateway injectable by its name, and
@@ -150,7 +150,7 @@ something atomic - a table with a unique key, Redis's `SET NX`.
 - **Any other**: build the `Registry` once, where the framework builds its services, as the script
   above does; give it the framework's HTTP client and a shared store.
 
-### Errors
+## Errors
 
 A provider that does not answer, a key it refuses, an option missing: [Errors](errors.md) lists
 every exception and when each is thrown.

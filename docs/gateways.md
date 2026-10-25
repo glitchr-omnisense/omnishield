@@ -3,7 +3,7 @@ title: The three questions
 order: 30
 ---
 
-## The three questions
+# The three questions
 
 A gateway answers one question - its `Capabilities` say which - and the `Registry` gives it as the
 contract that asks it: `challenge($name)`, `classifier($name)`, `reputation($name)`, or a
@@ -27,7 +27,7 @@ contract that asks it: `challenge($name)`, `classifier($name)`, `reputation($nam
 | Spent tokens | the site's store | Cloudflare refuses them | Google refuses them | - | - | - |
 | Needs | a key of the site's | site key, secret | site key, secret; Enterprise: project, API key | an API key | nothing; a key to report | nothing |
 
-### A captcha
+## A captcha
 
 ```php
 $captcha = $registry->challenge('forms');
@@ -57,7 +57,7 @@ A captcha the site issues itself (`ChallengeIssuerInterface`: ALTCHA) carries a 
 its widget, or the address it is fetched from when `challenge_url` is set: `issue()` is what that
 address answers - the Symfony bridge has the route.
 
-### A classifier
+## A classifier
 
 ```php
 $classification = $registry->classifier('comments')->classify(new Submission(
@@ -79,7 +79,7 @@ $registry->classifier('comments')->report($submission, spam: true);
 
 Send the submission as it was classified: the classifier finds it by what it was told.
 
-### A list
+## A list
 
 ```php
 $reputation = $registry->reputation('reported')->lookup(new Identity($ip, $email, $name));
@@ -91,7 +91,7 @@ $reputation->confidence;           // 0-100
 A list reads the parts its `Capabilities::$reads` name and ignores the others; it is asked about
 the people who submit a form, never about every visitor.
 
-### Writing a gateway
+## Writing a gateway
 
 A package `omnishield/<provider>`: a factory extending `Omnishield\GatewayFactory` that fills a
 `Config` - its name, title, the options it needs and their defaults - and builds the gateway, a
@@ -130,7 +130,7 @@ credentials: an `InvalidKeyException` when the gateway sends a key or a secret, 
 provider (`Tests/Fixtures/*.json`), and say in its documentation what was verified for real and
 what was not.
 
-### Conformance suite
+## Conformance suite
 
 `Omnishield\Testing\GatewayContractTests` is the family's contract as PHPUnit tests: every gateway
 package runs it, offline, in a `Tests/<Name>ContractTest.php` of its own. The test case gives the
