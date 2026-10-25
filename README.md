@@ -113,6 +113,13 @@ docker compose run --rm omnishield bare --live   # the same against the provider
 docker compose run --rm omnishield test
 ```
 
+## Verified, and not
+
+| | |
+|---|---|
+| The conformance suite (`Omnishield\Testing\GatewayContractTests`, [docs/gateways.md](docs/gateways.md#conformance-suite)) | **green on 2026-10-25** for all six gateways and `Testing\FixedGateway`, offline, in the workspace (`~/Sites/omnishield`, 159 tests): on recorded answers - each gateway's own "Verified, and not" says which were recorded from the provider and which written from its documentation |
+| The gateways against their providers | see each gateway's documentation: Turnstile's and reCAPTCHA v2's testing keys and StopForumSpam's lookups for real on 2026-10-07; Akismet, reCAPTCHA v3 and Enterprise not, for want of a key |
+
 ## Responsibility
 
 `omniscient/omnishield` and its `omnishield/*` providers are independent, unofficial clients: none is
