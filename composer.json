@@ -1,5 +1,5 @@
 {
-    "name": "omniscient/omnishield",
+    "name": "omnisense/omnishield",
     "type": "library",
     "description": "Omnishield: one contract for guarding a form - is this token valid (a captcha: ALTCHA, Turnstile, reCAPTCHA), is this content spam (Akismet), are this address, this e-mail, this name known for abuse (StopForumSpam, disposable e-mail domains) - whoever answers; and its Symfony bridge: a form field, a constraint, the ALTCHA challenge's route, a Twig function.",
     "keywords": [
@@ -14,7 +14,7 @@
         "disposable-email",
         "omnishield"
     ],
-    "homepage": "https://github.com/glitchr-studio/omnishield",
+    "homepage": "https://github.com/glitchr-omnisense/omnishield",
     "license": "MIT",
     "authors": [
         {
@@ -43,6 +43,7 @@
         "twig/twig": "^3.0"
     },
     "replace": {
+        "omniscient/omnishield": "self.version",
         "glitchr/omnishield": "self.version"
     },
     "suggest": {

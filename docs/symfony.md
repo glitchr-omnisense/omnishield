@@ -9,7 +9,7 @@ Omnishield runs without a framework ([installation](installation.md)); in a Symf
 bridge does the wiring. Its components - `symfony/config`, `symfony/dependency-injection`,
 `symfony/http-kernel`, and for the pieces below `symfony/form`, `symfony/validator`,
 `symfony/routing`, `symfony/http-foundation`, `twig/twig` - are not required by
-`omniscient/omnishield`: the application has them, each piece is registered only when its component
+`omnisense/omnishield`: the application has them, each piece is registered only when its component
 is installed, and nothing of them is loaded outside Symfony.
 
 Register `Omnishield\Bridge\Symfony\OmnishieldBundle` (no Flex recipe):
