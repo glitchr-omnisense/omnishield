@@ -50,7 +50,7 @@ run in a browser.
 
 ## Responsibility
 
-`omniscient/omnishield` and its `omnishield/*` providers are independent, unofficial clients: none
+`omnisense/omnishield` and its `omnishield/*` providers are independent, unofficial clients: none
 is affiliated with, endorsed by or sponsored by the services it reaches. Each service keeps its own
 terms (accounts and keys, rate limits, commercial or non-commercial use, what becomes of the
 visitors' data), named with a link in the "Responsibility" section of the README of each provider

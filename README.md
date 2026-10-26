@@ -1,11 +1,11 @@
-# omniscient/omnishield
+# omnisense/omnishield
 
 One contract for guarding a form, whoever answers. Three questions, and a gateway answers the one
 that concerns it:
 
-Published as `omniscient/omnishield` (formerly `glitchr/omnishield`, which this package replaces: a
+Published as `omnisense/omnishield` (formerly `glitchr/omnishield`, which this package replaces: a
 `composer.json` that still requires the old name keeps resolving to this package, never both).
-`omniscient/` is the vendor of every family's core; the providers keep theirs (`omnishield/turnstile`...).
+`omnisense/` is the vendor of every family's core; the providers keep theirs (`omnishield/turnstile`...).
 
 - **is this token valid?** - a captcha: ALTCHA, Cloudflare Turnstile, Google reCAPTCHA;
 - **is this content spam?** - a classifier: Akismet;
@@ -32,12 +32,12 @@ interfaces, no client). Each gateway is a package of its own:
 
 | Package | It answers | Third party | Cookies |
 |---|---|---|---|
-| [`omnishield/altcha`](https://github.com/glitchr-studio/omnishield-altcha) | is this token valid: a proof of work the site issues and checks itself | none (the widget's script: yours, or jsDelivr's) | none |
-| [`omnishield/turnstile`](https://github.com/glitchr-studio/omnishield-turnstile) | is this token valid: Cloudflare's widget, Cloudflare's siteverify | Cloudflare | none |
-| [`omnishield/recaptcha`](https://github.com/glitchr-studio/omnishield-recaptcha) | is this token valid: v2 checkbox and invisible, v3 score, Enterprise | Google | `_GRECAPTCHA` |
-| [`omnishield/akismet`](https://github.com/glitchr-studio/omnishield-akismet) | is this content spam: ham, spam, flagrant; reports back | Akismet (Automattic) | - |
-| [`omnishield/stopforumspam`](https://github.com/glitchr-studio/omnishield-stopforumspam) | is this identity known: the public database, a threshold of the site's | StopForumSpam | - |
-| [`omnishield/disposable`](https://github.com/glitchr-studio/omnishield-disposable) | is this e-mail's domain disposable: a free list shipped in the package | none | - |
+| [`omnishield/altcha`](https://github.com/glitchr-omnisense/omnishield-altcha) | is this token valid: a proof of work the site issues and checks itself | none (the widget's script: yours, or jsDelivr's) | none |
+| [`omnishield/turnstile`](https://github.com/glitchr-omnisense/omnishield-turnstile) | is this token valid: Cloudflare's widget, Cloudflare's siteverify | Cloudflare | none |
+| [`omnishield/recaptcha`](https://github.com/glitchr-omnisense/omnishield-recaptcha) | is this token valid: v2 checkbox and invisible, v3 score, Enterprise | Google | `_GRECAPTCHA` |
+| [`omnishield/akismet`](https://github.com/glitchr-omnisense/omnishield-akismet) | is this content spam: ham, spam, flagrant; reports back | Akismet (Automattic) | - |
+| [`omnishield/stopforumspam`](https://github.com/glitchr-omnisense/omnishield-stopforumspam) | is this identity known: the public database, a threshold of the site's | StopForumSpam | - |
+| [`omnishield/disposable`](https://github.com/glitchr-omnisense/omnishield-disposable) | is this e-mail's domain disposable: a free list shipped in the package | none | - |
 
 Formerly `glitchr/omniguard`, renamed on 2026-10-10: on Packagist the vendor `omniguard` belongs to
 another project, so the family's providers could not be published under it. The namespace is
@@ -74,7 +74,7 @@ The manual, in `docs/` (one page on the site, in this order):
 ## Plain PHP
 
 ```sh
-composer require omniscient/omnishield omnishield/altcha omnishield/disposable
+composer require omnisense/omnishield omnishield/altcha omnishield/disposable
 ```
 
 ```php
@@ -127,7 +127,7 @@ docker compose run --rm omnishield test
 
 ## Responsibility
 
-`omniscient/omnishield` and its `omnishield/*` providers are independent, unofficial clients: none is
+`omnisense/omnishield` and its `omnishield/*` providers are independent, unofficial clients: none is
 affiliated with, endorsed by or sponsored by the services it reaches. Each service keeps its own
 terms (accounts and keys, rate limits, commercial or non-commercial use, what becomes of the
 visitors' data), named with a link in the "Responsibility" section of the README of each provider

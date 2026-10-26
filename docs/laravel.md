@@ -76,6 +76,6 @@ There is no form field, constraint, challenge route or Twig function under Larav
 as in plain PHP ([Installation](installation.md)). With omnibase's stores and omnibase 4.x,
 omnibridge/laravel's `Auth\OmnibaseEffects` builds omnibase's `FormGuard` and `SignInCaptcha` on
 this registry, with `defaultChallenge()` and `acceptsUnreachable()` ([omniauth's Laravel
-page](https://github.com/glitchr-studio/omniauth/blob/1.x/docs/laravel.md)).
+page](https://github.com/glitchr-omnisense/omniauth/blob/1.x/docs/laravel.md)).
 
 This page was written from omnibridge/laravel's code; it was not run in a Laravel application here.

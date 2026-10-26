@@ -1,4 +1,4 @@
-# omniscient/omnishield
+# omnisense/omnishield
 
 Omnishield is one PHP contract for guarding a form, whoever answers. It asks three questions, and
 a gateway answers the one that concerns it:
@@ -35,7 +35,7 @@ a key it refused an `InvalidKeyException`, and neither is ever taken for "fine".
 - a token, an address, a text, a name - never an account, an entity or a request. What a gateway
 cannot do is a `NotSupportedException`, and its `Capabilities` say so beforehand.
 
-Published as `omniscient/omnishield`, formerly `glitchr/omnishield` (and before 2026-10-10
+Published as `omnisense/omnishield`, formerly `glitchr/omnishield` (and before 2026-10-10
 `glitchr/omniguard`): the package `replace`s `glitchr/omnishield`, so a `composer.json` that still
 requires the old name resolves to this package. The namespace is `Omnishield\`; the providers keep
 the `omnishield/` vendor and the `Omnishield\<Provider>\` namespace.
@@ -59,13 +59,13 @@ what it calls.
 
 | Package | Factory | Answers | Calls | Third party | Cookies | Score | Action checked | Reports | Reads | Needs |
 |---|---|---|---|---|---|---|---|---|---|---|
-| [`omnishield/altcha`](https://github.com/glitchr-studio/omnishield-altcha) | `altcha` | challenge (it issues its challenges: `ChallengeIssuerInterface`; texts: `LocalizableInterface`) | nothing | no | no | no | yes, signed in the challenge | - | - | `hmac_key` |
-| [`omnishield/turnstile`](https://github.com/glitchr-studio/omnishield-turnstile) | `turnstile` | challenge | Cloudflare's `siteverify` | yes | no | no | yes | - | - | `site_key`, `secret` |
-| [`omnishield/recaptcha`](https://github.com/glitchr-studio/omnishield-recaptcha) | `recaptcha` | challenge | Google's `siteverify`; Enterprise `assessments` | yes | yes (`_GRECAPTCHA`) | `score`, `enterprise` modes | `score`, `enterprise` modes | - | - | `site_key`, `secret`; Enterprise `site_key`, `project_id`, `api_key` |
-| [`omnishield/akismet`](https://github.com/glitchr-studio/omnishield-akismet) | `akismet` | classifier | `comment-check`, `submit-spam`, `submit-ham`, `verify-key` | yes | no | - | - | yes | - | `api_key` |
-| [`omnishield/stopforumspam`](https://github.com/glitchr-studio/omnishield-stopforumspam) | `stopforumspam` | reputation | `api`; `add` to report | yes | no | - | - | with `api_key` (its own `report()`) | `send`: ip, email, name | nothing; `api_key` to report |
-| [`omnishield/disposable`](https://github.com/glitchr-studio/omnishield-disposable) | `disposable` | reputation | nothing (a list shipped in the package) | no | no | - | - | - | email | nothing |
-| `omniscient/omnishield` | `fixed` | all three, for tests (`Testing\FixedGateway`) | nothing | no | no | yes (1.0 or 0.0) | yes | yes | ip, email, name | nothing (`pass`) |
+| [`omnishield/altcha`](https://github.com/glitchr-omnisense/omnishield-altcha) | `altcha` | challenge (it issues its challenges: `ChallengeIssuerInterface`; texts: `LocalizableInterface`) | nothing | no | no | no | yes, signed in the challenge | - | - | `hmac_key` |
+| [`omnishield/turnstile`](https://github.com/glitchr-omnisense/omnishield-turnstile) | `turnstile` | challenge | Cloudflare's `siteverify` | yes | no | no | yes | - | - | `site_key`, `secret` |
+| [`omnishield/recaptcha`](https://github.com/glitchr-omnisense/omnishield-recaptcha) | `recaptcha` | challenge | Google's `siteverify`; Enterprise `assessments` | yes | yes (`_GRECAPTCHA`) | `score`, `enterprise` modes | `score`, `enterprise` modes | - | - | `site_key`, `secret`; Enterprise `site_key`, `project_id`, `api_key` |
+| [`omnishield/akismet`](https://github.com/glitchr-omnisense/omnishield-akismet) | `akismet` | classifier | `comment-check`, `submit-spam`, `submit-ham`, `verify-key` | yes | no | - | - | yes | - | `api_key` |
+| [`omnishield/stopforumspam`](https://github.com/glitchr-omnisense/omnishield-stopforumspam) | `stopforumspam` | reputation | `api`; `add` to report | yes | no | - | - | with `api_key` (its own `report()`) | `send`: ip, email, name | nothing; `api_key` to report |
+| [`omnishield/disposable`](https://github.com/glitchr-omnisense/omnishield-disposable) | `disposable` | reputation | nothing (a list shipped in the package) | no | no | - | - | - | email | nothing |
+| `omnisense/omnishield` | `fixed` | all three, for tests (`Testing\FixedGateway`) | nothing | no | no | yes (1.0 or 0.0) | yes | yes | ip, email, name | nothing (`pass`) |
 
 Each provider's own manual lists its options, its answers and what was verified against the
 provider for real.

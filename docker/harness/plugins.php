@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Every gateway package: its slug (omnishield/<slug>, github.com/glitchr-studio/omnishield-<slug>),
+ * Every gateway package: its slug (omnishield/<slug>, github.com/glitchr-omnisense/omnishield-<slug>),
  * its tests' namespace and its factory class.
  */
 return [

@@ -109,7 +109,7 @@ whose path repositories link `core` and the six providers into one `vendor/`, an
 `phpunit.xml.dist` with a test suite per package). The examples of this manual were run there on
 2026-10-26, offline, in a PHP 8.4 container with the workspace mounted read-only and no network
 (`docker run --rm --network none -v <workspace>:/ws:ro ... php /scratch/example.php`, the
-autoloader `/ws/vendor/autoload.php`): the harness's image, `omniscient/omnishield-harness`, was not
+autoloader `/ws/vendor/autoload.php`): the harness's image, `omnisense/omnishield-harness`, was not
 built on that machine. The workspace's suite ran there too: 159 tests, 1231 assertions, green.
 
 The harness's service uses Compose's default network: `docker compose down -v` removes it with the

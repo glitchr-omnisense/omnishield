@@ -6,7 +6,7 @@ order: 10
 # Installation
 
 ```sh
-composer require omniscient/omnishield omnishield/altcha     # a captcha the site issues and checks itself: no key, no third party
+composer require omnisense/omnishield omnishield/altcha     # a captcha the site issues and checks itself: no key, no third party
 composer require omnishield/disposable                      # disposable e-mail domains: a list, no call
 composer require omnishield/turnstile omnishield/recaptcha   # Cloudflare's, Google's captcha
 composer require omnishield/akismet omnishield/stopforumspam # a spam classifier, a list of reported abusers
@@ -15,7 +15,7 @@ composer require omnishield/akismet omnishield/stopforumspam # a spam classifier
 ## Requirements
 
 - PHP 8.2 or later.
-- `omniscient/omnishield` requires `symfony/http-client-contracts` (^3.0) and nothing else.
+- `omnisense/omnishield` requires `symfony/http-client-contracts` (^3.0) and nothing else.
 - `omnishield/turnstile`, `omnishield/recaptcha`, `omnishield/akismet` and `omnishield/stopforumspam`
   require `symfony/http-client` (6.4, 7 or 8); `omnishield/altcha` requires `altcha-org/altcha`
   (^2.3) and no HTTP client; `omnishield/disposable` requires nothing more.
