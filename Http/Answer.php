@@ -12,7 +12,11 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * and body. send() is the one place the family's gateways call through:
  * no connection, a timeout, a server error or a quota exceeded is an
  * UnreachableException - the provider said nothing about the request - and
- * anything else comes back for the gateway to read.
+ * anything else comes back for the gateway to read. The request's secrets
+ * stay out of what it throws: the HTTP client's message with the key's
+ * parameters masked (Redaction::text(), api_key=***), its exception wrapped
+ * as a copy (Redaction::copy()), no trace keeping the arguments where the
+ * options stood.
  */
 final readonly class Answer
 {
@@ -34,10 +38,12 @@ final readonly class Answer
             $headers = $response->getHeaders(false);
             $body = $response->getContent(false);
         } catch (ExceptionInterface $e) {
-            throw new UnreachableException($provider, 'No answer: '.$e->getMessage(), null, $e);
+            $secrets = Redaction::secrets($url, $options);
+
+            throw Redaction::withoutArguments(new UnreachableException($provider, 'No answer: '.Redaction::text($e->getMessage(), $secrets), null, Redaction::copy($e, $secrets)));
         }
         if ($status >= 500 || 429 === $status) {
-            throw new UnreachableException($provider, \sprintf('HTTP %d: %s', $status, mb_substr(trim($body), 0, 200)), (string) $status);
+            throw Redaction::withoutArguments(new UnreachableException($provider, \sprintf('HTTP %d: %s', $status, mb_substr(trim($body), 0, 200)), (string) $status));
         }
 
         return new self($status, $headers, $body, $provider);
