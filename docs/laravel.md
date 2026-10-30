@@ -29,15 +29,12 @@ return [
 |---|---|---|
 | `gateways.<name>.factory`, `.options` | `[]` | as under Symfony; an entry without a string `factory` is skipped |
 | `challenge.gateway` | `null`: the first gateway | `ShieldServiceProvider::defaultChallenge($app)` |
-| `challenge.unreachable` | `accept` | `ShieldServiceProvider::acceptsUnreachable($app)`: anything but `reject` accepts |
+| `challenge.unreachable` | `reject` | `ShieldServiceProvider::acceptsUnreachable($app)`: only `accept` accepts |
 | `serve_scripts` | `true` | ALTCHA's script served at `/omnishield/altcha/3.3.0/altcha.min.js` (route `omnishield_altcha_script`, cached a year) and made the default `script` of every `altcha` gateway that names none |
 | `replay.pool` | `null` | a binding that is a PSR-6 pool: `CacheReplayStore` on it; otherwise `InMemoryReplayStore` |
 
-> [!WARNING]
-> Known defect: `challenge.unreachable` defaults to `accept` under Laravel, where the Symfony
-> bundle's same key defaults to `reject` - the same configuration lets a form through under one
-> host and refuses it under the other when a provider does not answer. With the factories Laravel
-> registers today (below) no gateway calls a provider, so none is ever unreachable.
+`challenge.unreachable` defaults to `reject`, as the Symfony bundle's same key: the same
+configuration refuses a form under either host when a provider does not answer.
 
 ## What it binds
 
@@ -45,7 +42,7 @@ return [
 |---|---|
 | `Omnishield\Registry` | the gateways of `config/omnishield.php`, built by `Omnishield\Altcha\AltchaGatewayFactory` (given the replay store), `Omnishield\Disposable\DisposableGatewayFactory` and `Omnishield\Testing\FixedGatewayFactory`, those installed |
 | `Omnishield\Replay\ReplayStoreInterface` | `CacheReplayStore` on `replay.pool`, else `InMemoryReplayStore` |
-| `Omnishield\WidgetPrinter` | one printer, a singleton |
+| `Omnishield\WidgetPrinter` | one printer per request (a scoped binding) |
 
 Only the factories that need no HTTP client are registered: a gateway configured with `turnstile`,
 `recaptcha`, `akismet` or `stopforumspam` is an `InvalidConfigException` (`No "turnstile" factory
@@ -64,11 +61,9 @@ $this->app->singleton(Registry::class, fn () => new Registry([
 ], config('omnishield.gateways')));
 ```
 
-> [!WARNING]
-> Known defect: the `WidgetPrinter` is a plain singleton, never reset, where the Symfony bundle
-> resets it between two requests (`kernel.reset`): under a long-running worker (Octane,
-> FrankenPHP) a provider's script printed on one page would be left out of the widgets of the next
-> pages.
+The `WidgetPrinter` is a scoped binding, a new one for each request, as the Symfony bundle resets
+its own between two (`kernel.reset`): under a long-running worker (Octane, FrankenPHP) a provider's
+script printed on one page is printed again on the next.
 
 There is no form field, constraint, challenge route or Twig function under Laravel: a form prints
 `$widget->html()` (or `WidgetPrinter::print()`) and verifies with
