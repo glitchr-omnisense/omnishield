@@ -128,7 +128,7 @@ final class WidgetLocalizerTest extends TestCase
     {
         $translator = self::translator();
 
-        // fr_BE, as glitchr/omnibase's core sets it: no Belgian catalogue, so "fr" and the French texts.
+        // fr_BE, as omnisense/omnibase's core sets it: no Belgian catalogue, so "fr" and the French texts.
         $belgian = (new WidgetLocalizer($translator, self::requests('fr_BE')))->localize(self::altcha())->widget();
         self::assertSame('fr', $belgian->attributes['language']);
         self::assertSame(['fr', 'Je ne suis pas un robot'], [self::registered($belgian->inline)['@language'], self::registered($belgian->inline)['label']], 'registered under the language the widget is told');
