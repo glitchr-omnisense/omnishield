@@ -2,6 +2,7 @@
 
 namespace Omnishield;
 
+use Omnisense\Contracts\Provider\ProviderInterface;
 use Omnishield\Model\Capabilities;
 
 /**
@@ -13,8 +14,11 @@ use Omnishield\Model\Capabilities;
  *
  * A gateway answers. It does not decide what to do with a refusal, nor with
  * a provider that does not answer: the application does.
+ *
+ * It is an omnisense/contracts provider: its Capabilities carry its usage
+ * policy (policy()).
  */
-interface GatewayInterface
+interface GatewayInterface extends ProviderInterface
 {
     /** The factory's name: "altcha", "turnstile", "akismet"... */
     public function getName(): string;

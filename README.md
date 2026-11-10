@@ -68,6 +68,7 @@ The manual, in `docs/` (one page on the site, in this order):
 - [The three questions: the contracts, the gateways, writing one](docs/gateways.md)
 - [Privacy: who sees what, cookies, consent](docs/privacy.md)
 - [Configuration reference](docs/configuration.md), [Errors](docs/errors.md), [Testing](docs/testing.md)
+- [Usage policies](docs/policies.md): each gateway's limits and rights, the guard, a site's tightening
 - [The Docker harness: the console, bare PHP](docs/harness.md)
 - [Verified, and not](docs/verified.md)
 

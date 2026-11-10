@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+### Added
+
+- omnisense/omnishield on omnisense/contracts, the kernel every omni family builds on, with usage
+  policies. `Config`, `GatewayFactory` (`populate()` and `build()` as before), `Registry`,
+  `Http\Redaction` and the exceptions keep their names and their API on top of the kernel's
+  (prefix `omnishield`); `GatewayInterface` is a contracts provider, `Capabilities` gains
+  `policy()` and `contracts()`.
+- Usage policies: every gateway package declares its own (`policy.json`); `Registry::challenge()`,
+  `classifier()` and `reputation()` give the gateway behind its guard when its policy limits one of
+  the contract's operations (`Policy\Guarded*`); `policy`/`usage` per gateway (and in the bundle);
+  `Registry::policy()`, `policies()`, `guard()`; a shared `RateLimiterInterface` as the registry's
+  third argument; `Exception\UsageLimitReachedException`. See docs/policies.md.
+- `Http\Answer::send()` takes the gateway's `Backoff`: a 429's `Retry-After` holds the next calls,
+  still `UnreachableException`s (`retryAfter()`).
+- composer.json requires `ext-mbstring` (`Answer` calls `mb_substr()`; the kernel requires it too).
+
 ### Fixed
 
 - An `UnreachableException` no longer carries the request's secrets. `Answer::send()` put the HTTP

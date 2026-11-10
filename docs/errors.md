@@ -13,15 +13,16 @@ it refused, a configuration to fix.
 ## The exceptions
 
 Every exception Omnishield throws implements `Omnishield\Exception\OmnishieldException` (a
-`\Throwable`):
+`\Throwable`, and omnisense/contracts' `ExceptionInterface`):
 
 | Exception | Extends | When |
 |---|---|---|
-| `UnreachableException` | `ProviderException` | the provider did not answer: no connection, a timeout, a server error (HTTP 5xx), a quota exceeded (HTTP 429), Turnstile's `internal-error`. Nothing was decided |
+| `UnreachableException` | `ProviderException` | the provider did not answer: no connection, a timeout, a server error (HTTP 5xx), a quota exceeded (HTTP 429, and every call its `Retry-After` holds afterwards: `retryAfter()` gives the seconds), Turnstile's `internal-error`. Nothing was decided |
+| `UsageLimitReachedException` | omnisense/contracts' `UsageLimitReached` (`\RuntimeException`) | a rate limit of the gateway's usage policy, as the site tightened it, is reached: the call was not made. `$retryAfter`, `$limit` ([Usage policies](policies.md)) |
 | `InvalidKeyException` | `ProviderException` | the provider refused the site's key or secret: HTTP 401 or 403 from a gateway that sends one, `missing-input-secret` / `invalid-input-secret`, Akismet's `invalid` about the key, Enterprise's `PERMISSION_DENIED`. The configuration is wrong, whatever the visitor did |
 | `ProviderException` | `\RuntimeException` | the provider answered with an error rather than a verdict: `bad-request`, an answer that is not JSON, StopForumSpam's `success: 0`, an Akismet request it could not read. `$provider` names it (`turnstile`), `$providerCode` keeps its own code; the message starts with `[<provider>]` |
-| `InvalidConfigException` | `\LogicException` | a gateway not configured, a factory not installed, a required option missing or empty, an option out of its range (a reCAPTCHA mode, a threshold, an ALTCHA algorithm or key prefix, StopForumSpam's `send` or `tor`), a list file unreadable, a submission without what the provider needs (Akismet: the visitor's IP and the site's home page; a StopForumSpam report: all three parts) |
-| `NotSupportedException` | `\LogicException` | the gateway does not answer that question (`Registry::challenge()` of a list), or does not take reports (StopForumSpam without `api_key`) |
+| `InvalidConfigException` | omnisense/contracts' `InvalidConfigException` (`\InvalidArgumentException`, a `\LogicException`) | a gateway not configured, a factory not installed, a required option missing or empty, an option out of its range (a reCAPTCHA mode, a threshold, an ALTCHA algorithm or key prefix, StopForumSpam's `send` or `tor`), a list file unreadable, a submission without what the provider needs (Akismet: the visitor's IP and the site's home page; a StopForumSpam report: all three parts) |
+| `NotSupportedException` | omnisense/contracts' `NotSupportedException` (`\LogicException`) | the gateway does not answer that question (`Registry::challenge()` of a list), or does not take reports (StopForumSpam without `api_key`) |
 
 The HTTP statuses map the same way in every gateway, and the conformance suite checks it of each
 one: no answer, 5xx and 429 an `UnreachableException`; 401 and 403 an `InvalidKeyException` (a

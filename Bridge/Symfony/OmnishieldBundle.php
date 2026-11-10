@@ -104,6 +104,8 @@ final class OmnishieldBundle extends AbstractBundle
                         ->children()
                             ->scalarNode('factory')->isRequired()->cannotBeEmpty()->end()
                             ->variableNode('options')->defaultValue([])->end()
+                            ->variableNode('policy')->info('The site\'s tightening of the gateway\'s usage policy, in the schema\'s shape (omnisense/contracts): never looser.')->end()
+                            ->variableNode('usage')->info('What the site is: {commercial, open_source, contract}; a use the provider\'s terms forbid fails when the gateway is asked.')->end()
                         ->end()
                     ->end()
                 ->end()
@@ -139,7 +141,7 @@ final class OmnishieldBundle extends AbstractBundle
     }
 
     /**
-     * @param array{gateways: array<string, array{factory: string, options: array<string, mixed>}>, challenge: array{gateway: ?string, unreachable: string}, serve_scripts: bool, replay: array{service: ?string, pool: ?string}} $config
+     * @param array{gateways: array<string, array{factory: string, options: array<string, mixed>, policy?: array<string, mixed>, usage?: array<string, mixed>}>, challenge: array{gateway: ?string, unreachable: string}, serve_scripts: bool, replay: array{service: ?string, pool: ?string}} $config
      */
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {

@@ -3,7 +3,8 @@
 /**
  * The harness's composer.json and phpunit.xml: this core from its checkout,
  * each gateway from a checkout under /omnishield/plugins when there is one,
- * from GitHub (branch 1.x) otherwise; every package's tests in one run.
+ * from GitHub (branch 1.x) otherwise, omnisense/contracts the same way from
+ * /omnisense/contracts; every package's tests in one run.
  * Files are rewritten only when they change, so the entrypoint knows when
  * to install.
  */
@@ -17,6 +18,21 @@ $require = ['omnisense/omnishield' => '1.x-dev'];
 $tests = ['Omnishield\\Tests\\' => "$core/Tests/"];
 $suites = ['core' => "$core/Tests"];
 $gateways = [];
+
+// omnisense/contracts, the kernel the family builds on: its checkout under /omnisense/contracts
+// (OMNISENSE_CONTRACTS in .env) when there is one, its tests run beside the family's; GitHub otherwise.
+$contracts = '/omnisense/contracts';
+$meta = is_file("$contracts/composer.json") ? json_decode((string) file_get_contents("$contracts/composer.json"), true) : null;
+if (($meta['name'] ?? null) === 'omnisense/contracts') {
+    $repositories[] = ['type' => 'path', 'url' => $contracts, 'options' => ['symlink' => true, 'versions' => ['omnisense/contracts' => '1.x-dev']]];
+    $tests['Omnisense\\Contracts\\Tests\\'] = "$contracts/Tests/";
+    $suites['contracts'] = "$contracts/Tests";
+    $gateways['contracts'] = 'checkout';
+} else {
+    $repositories[] = ['type' => 'git', 'url' => 'https://github.com/glitchr-omnisense/contracts.git'];
+    $gateways['contracts'] = 'github';
+}
+$require['omnisense/contracts'] = '1.x-dev';
 foreach ($plugins as $slug => [$testsNs]) {
     $name = "omnishield/$slug";
     $dir = "$local/$slug";
@@ -48,6 +64,7 @@ $composer = [
         'symfony/http-client' => '^7.0|^8.0',
     ],
     'require-dev' => [
+        'phpstan/phpstan' => '^2.1',
         'phpunit/phpunit' => '^11.0',
         'psr/cache' => '^3.0',
         'symfony/cache' => '^7.0|^8.0',

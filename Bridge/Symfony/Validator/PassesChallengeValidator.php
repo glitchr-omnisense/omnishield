@@ -3,6 +3,7 @@
 namespace Omnishield\Bridge\Symfony\Validator;
 
 use Omnishield\Exception\UnreachableException;
+use Omnishield\Exception\UsageLimitReachedException;
 use Omnishield\Model\Attempt;
 use Omnishield\Model\Verdict;
 use Omnishield\Registry;
@@ -50,7 +51,7 @@ final class PassesChallengeValidator extends ConstraintValidator
 
         try {
             $verdict = $this->registry->challenge($gateway)->verify(new Attempt($token, $request?->getClientIp(), $constraint->action, $hostname));
-        } catch (UnreachableException) {
+        } catch (UnreachableException|UsageLimitReachedException) {
             if (!($constraint->unreachable ?? $this->acceptUnreachable)) {
                 $this->context->buildViolation($constraint->unreachableMessage)->setCode(PassesChallenge::UNREACHABLE_ERROR)->addViolation();
             }

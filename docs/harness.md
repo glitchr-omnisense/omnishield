@@ -7,7 +7,11 @@ order: 70
 
 `docker/` runs this package with every `omnishield/*` gateway installed - from GitHub (branch
 1.x), or from the checkouts beside this one when `OMNISHIELD_PLUGINS=../..` is set in
-`docker/.env` - with a console and a script in bare PHP.
+`docker/.env` - with a console and a script in bare PHP. omnisense/contracts, the kernel the family
+builds on, comes the same way: from its checkout when `OMNISENSE_CONTRACTS` names it in
+`docker/.env` (`../../../omnisense-contracts` beside the family's folder), its tests then run with
+the family's; from GitHub otherwise. The image may be another family's harness tagged (the same PHP
+8.4 Alpine with Composer): the compose file names the entrypoint, and runs on Docker's default bridge.
 
 ```sh
 cd docker && cp .env.dist .env       # the keys you have; none is needed
@@ -24,6 +28,7 @@ docker compose run --rm omnishield gateways
 | `lookup <gateway>` | what a list knows (JSON): `--ip`, `--email`, `--name` |
 | `bare` | plain PHP: the registry built by hand, each gateway asked a whole question, what PHP loaded |
 | `test` | every package's tests |
+| `phpstan` | PHPStan at level max on each package that has a `phpstan.neon` |
 
 The console calls the providers for real; `--recorded` answers from the packages' recorded
 answers instead. A gateway whose settings are not in `.env` runs on its example ones: the

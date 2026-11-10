@@ -2,6 +2,8 @@
 
 namespace Omnishield\Http;
 
+use Omnisense\Contracts\Policy\Backoff;
+use Omnisense\Contracts\Policy\UsageLimitReached;
 use Omnishield\Exception\ProviderException;
 use Omnishield\Exception\UnreachableException;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
@@ -17,6 +19,13 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * parameters masked (Redaction::text(), api_key=***), its exception wrapped
  * as a copy (Redaction::copy()), no trace keeping the arguments where the
  * options stood.
+ *
+ * Given the gateway's Backoff (Config::backoff()), the waits a provider asks
+ * for are kept: a 429's Retry-After (or a RateLimit field with nothing left)
+ * holds every next call of the gateway, refused without a request, until it
+ * is over - each still an UnreachableException, as a 429 always was, whose
+ * previous is the family's UsageLimitReachedException with the wait
+ * (UnreachableException::retryAfter()).
  */
 final readonly class Answer
 {
@@ -30,8 +39,13 @@ final readonly class Answer
     }
 
     /** @param array<string, mixed> $options the HTTP client's options: body, json, query, headers, timeout */
-    public static function send(HttpClientInterface $http, string $provider, string $method, string $url, array $options = []): self
+    public static function send(HttpClientInterface $http, string $provider, string $method, string $url, array $options = [], ?Backoff $backoff = null): self
     {
+        try {
+            $backoff?->clear();
+        } catch (UsageLimitReached $e) {
+            throw Redaction::withoutArguments(new UnreachableException($provider, $e->getMessage(), '429', $e));
+        }
         try {
             $response = $http->request($method, $url, $options + ['timeout' => 10]);
             $status = $response->getStatusCode();
@@ -42,8 +56,14 @@ final readonly class Answer
 
             throw Redaction::withoutArguments(new UnreachableException($provider, 'No answer: '.Redaction::text($e->getMessage(), $secrets), null, Redaction::copy($e, $secrets)));
         }
+        $limited = null;
+        try {
+            $backoff?->observe($status, $headers);
+        } catch (UsageLimitReached $e) {
+            $limited = $e;
+        }
         if ($status >= 500 || 429 === $status) {
-            throw Redaction::withoutArguments(new UnreachableException($provider, \sprintf('HTTP %d: %s', $status, mb_substr(trim($body), 0, 200)), (string) $status));
+            throw Redaction::withoutArguments(new UnreachableException($provider, \sprintf('HTTP %d: %s', $status, mb_substr(trim($body), 0, 200)), (string) $status, $limited));
         }
 
         return new self($status, $headers, $body, $provider);
