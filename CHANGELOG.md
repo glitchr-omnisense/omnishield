@@ -17,6 +17,12 @@
 - `Http\Answer::send()` takes the gateway's `Backoff`: a 429's `Retry-After` holds the next calls,
   still `UnreachableException`s (`retryAfter()`).
 - composer.json requires `ext-mbstring` (`Answer` calls `mb_substr()`; the kernel requires it too).
+- PHPStan at level max (`phpstan.neon`, no baseline) on the package and its tests: the types made
+  real where they were mixed - `Answer::json()` an object's keys, `Capabilities`, `Verdict` and
+  `Reputation::toArray()` field by field, `InMemoryReplayStore`'s clock a `Closure(): int`, the form
+  field's options read as the resolver allows them, `WidgetLocalizer` asking a `LocaleAwareInterface`
+  translator for its locale, `Testing\GatewayContractTests` asking each contract through its
+  interface; `Testing\FixedGatewayFactory::create()` gives a `FixedGateway`. Nothing else changes.
 
 ### Fixed
 

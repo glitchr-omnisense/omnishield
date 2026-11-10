@@ -15,16 +15,31 @@ use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
  * then reports every class and file PHP loaded on the way. None may be a
  * framework's; of Symfony, only the HTTP client the providers are called
  * through.
+ *
+ * @phpstan-type Answered array{passed: bool, reasons: list<string>, hostname?: string|null}
+ * @phpstan-type Report array{
+ *     live?: bool,
+ *     symbols: list<string>,
+ *     files: list<string>,
+ *     gateways?: array<string, mixed>,
+ *     fixed?: bool,
+ *     altcha?: array{first: Answered, again: Answered, other_action: Answered, widget: array{third_party: bool, cookies: bool}},
+ *     turnstile?: array{passes: Answered, fails: Answered, spent: Answered},
+ *     recaptcha?: array{test_keys: array{passed: bool, reasons: list<string>, hostname: string|null}, empty: Answered},
+ *     akismet?: array{ham: string, spam: string},
+ *     stopforumspam?: array{tor_exit: array{known: bool, reasons: list<string>}, documentation: array{known: bool}},
+ *     disposable?: array<string, string|null>,
+ * }
  */
 final class BareTest extends TestCase
 {
     private const FRAMEWORK = '~^(?:Symfony\\\\Component\\\\(?:DependencyInjection|Config|HttpKernel|HttpFoundation|Form|Validator|Routing)|Symfony\\\\Bundle|Symfony\\\\Bridge|Doctrine|Twig)\\\\~';
     private const FRAMEWORK_FILES = '~/vendor/(?:symfony/(?:dependency-injection|config|http-kernel|http-foundation|form|validator|routing|[a-z-]*bundle|[a-z-]*bridge)|doctrine|twig)/~';
 
-    /** @var array<string, mixed>|null */
+    /** @var Report|null */
     private static ?array $report = null;
 
-    /** @return array<string, mixed> */
+    /** @return Report */
     private static function report(): array
     {
         if (null === self::$report) {
@@ -39,17 +54,19 @@ final class BareTest extends TestCase
     {
         $report = self::report();
 
-        self::assertFalse($report['live']);
+        self::assertFalse($report['live'] ?? null);
         self::assertContains(Registry::class, $report['symbols'], 'the registry was built there');
         self::assertSame([], self::framework($report), 'no class nor file of a framework');
-        $symfony = array_values(array_unique(array_map(static fn (string $s) => implode('\\', \array_slice(explode('\\', $s), 0, 3)), preg_grep('~^Symfony\\\\(?!Polyfill)~', $report['symbols']))));
+        $symfony = array_values(array_unique(array_map(static fn (string $s) => implode('\\', \array_slice(explode('\\', $s), 0, 3)), array_filter($report['symbols'], static fn (string $s) => 1 === preg_match('~^Symfony\\\\(?!Polyfill)~', $s)))));
         self::assertSame([], array_diff($symfony, ['Symfony\\Component\\HttpClient', 'Symfony\\Contracts\\HttpClient', 'Symfony\\Contracts\\Service']), 'of Symfony, the HTTP client alone');
-        $installed = array_values(array_filter(array_column(require __DIR__.'/../docker/harness/plugins.php', 1), 'class_exists'));
+        /** @var array<string, array{string, class-string}> $plugins */
+        $plugins = require __DIR__.'/../docker/harness/plugins.php';
+        $installed = array_values(array_filter(array_column($plugins, 1), static fn (string $factory) => class_exists($factory)));
         foreach ($installed as $factory) {
             self::assertContains($factory, $report['symbols'], 'every gateway package installed, its factory built');
         }
-        self::assertCount(\count($installed) + 1, $report['gateways'], 'and the fixed one');
-        self::assertTrue($report['fixed']);
+        self::assertCount(\count($installed) + 1, $report['gateways'] ?? [], 'and the fixed one');
+        self::assertTrue($report['fixed'] ?? null);
     }
 
     public function testEachGatewayAnswersAWholeQuestion(): void
@@ -101,7 +118,7 @@ final class BareTest extends TestCase
     }
 
     /**
-     * @param array{symbols: list<string>, files: list<string>} $report
+     * @param array{symbols: list<string>, files: list<string>, ...} $report
      *
      * @return list<string> the classes, interfaces, traits and files of a framework among those loaded
      */
@@ -109,10 +126,15 @@ final class BareTest extends TestCase
     {
         // Composer includes every installed package's "files" (Twig's functions, here installed for the
         // bridge's tests) before anything runs: loaded by the autoloader, not by Omnishield.
+        /** @var array<string, string> $eager */
         $eager = require self::vendorDir().'/composer/autoload_files.php';
-        $files = array_diff(array_map('realpath', $report['files']), array_map('realpath', array_values($eager)));
+        $real = static fn (string $file): string => (string) realpath($file);
+        $files = array_diff(array_map($real, $report['files']), array_map($real, array_values($eager)));
 
-        return [...array_values(preg_grep(self::FRAMEWORK, $report['symbols'])), ...array_values(preg_grep(self::FRAMEWORK_FILES, $files))];
+        return [
+            ...array_values(array_filter($report['symbols'], static fn (string $symbol) => 1 === preg_match(self::FRAMEWORK, $symbol))),
+            ...array_values(array_filter($files, static fn (string $file) => 1 === preg_match(self::FRAMEWORK_FILES, $file))),
+        ];
     }
 
     /**
@@ -137,7 +159,7 @@ final class BareTest extends TestCase
      *
      * @param list<string> $arguments
      *
-     * @return array{int, array<string, mixed>} the exit status, the JSON printed
+     * @return array{int, Report} the exit status, the JSON printed
      */
     private static function php(array $arguments): array
     {
@@ -149,6 +171,7 @@ final class BareTest extends TestCase
         $status = proc_close($process);
         $report = json_decode($out, true);
         self::assertIsArray($report, 'PHP exited '.$status.': '.$err.$out);
+        /** @var Report $report the bare script's --json, or the symbols and files the other check prints */
 
         return [$status, $report];
     }

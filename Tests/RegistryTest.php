@@ -26,9 +26,11 @@ final class RegistryTest extends TestCase
         $registry = $this->registry();
 
         self::assertSame($registry->get('forms'), $registry->get('forms'));
-        self::assertSame('s3cret', $registry->get('forms')->secret);
+        self::assertInstanceOf(StubGateway::class, $forms = $registry->get('forms'));
+        self::assertSame('s3cret', $forms->secret);
         self::assertNotSame($registry->get('forms'), $registry->create('forms', ['secret' => 'typed-in-a-back-office']));
-        self::assertSame('typed-in-a-back-office', $registry->create('forms', ['secret' => 'typed-in-a-back-office'])->secret);
+        self::assertInstanceOf(StubGateway::class, $typed = $registry->create('forms', ['secret' => 'typed-in-a-back-office']));
+        self::assertSame('typed-in-a-back-office', $typed->secret);
         self::assertSame(['forms', 'tests', 'broken', 'unknown'], $registry->names());
         self::assertSame(['stub', 'fixed'], $registry->factories());
         self::assertSame(['secret' => 's3cret'], $registry->options('forms'));

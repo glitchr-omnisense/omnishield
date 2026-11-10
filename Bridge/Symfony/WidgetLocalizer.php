@@ -6,6 +6,7 @@ use Omnishield\ChallengeInterface;
 use Omnishield\LocalizableInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\TranslatorBagInterface;
+use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -36,7 +37,7 @@ final class WidgetLocalizer
         }
         $locale = $gateway->language()
             ?? $this->requests?->getCurrentRequest()?->getLocale()
-            ?? (method_exists($this->translator, 'getLocale') ? $this->translator->getLocale() : null);
+            ?? ($this->translator instanceof LocaleAwareInterface ? $this->translator->getLocale() : null);
         if (null === $locale || '' === $locale) {
             return $gateway;
         }
@@ -62,7 +63,8 @@ final class WidgetLocalizer
      */
     private function language(LocalizableInterface $gateway, string $locale): string
     {
-        $language = (string) preg_split('/[-_]/', $locale, 2)[0];
+        $parts = preg_split('/[-_]/', $locale, 2);
+        $language = false === $parts ? '' : $parts[0];
         if ('' === $language || $language === $locale || !$this->translator instanceof TranslatorBagInterface) {
             return $locale;
         }

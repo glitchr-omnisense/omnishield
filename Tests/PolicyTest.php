@@ -17,7 +17,6 @@ use Omnishield\Model\Attempt;
 use Omnishield\Model\Capabilities;
 use Omnishield\Model\Identity;
 use Omnishield\Model\Reputation;
-use Omnishield\Policy\Guarded;
 use Omnishield\Policy\GuardedChallengeIssuer;
 use Omnishield\Policy\GuardedReputation;
 use Omnishield\Registry;
@@ -47,7 +46,7 @@ final class PolicyTest extends TestCase
 
         self::assertInstanceOf(GuardedChallengeIssuer::class, $challenge, 'a limited operation: the gateway behind its guard');
         self::assertInstanceOf(ChallengeIssuerInterface::class, $challenge, 'still the contract it keeps');
-        self::assertSame($registry->get('forms'), $challenge instanceof Guarded ? $challenge->inner() : null);
+        self::assertSame($registry->get('forms'), $challenge->inner());
         self::assertTrue($challenge->verify(new Attempt('good-1'))->passed);
         self::assertTrue($challenge->verify(new Attempt('good-2'))->passed);
         self::assertSame(0, $registry->guard('forms')->remaining('verify'));
@@ -137,7 +136,7 @@ final class PolicyTest extends TestCase
         $declared = ProbeGateway::declared();
         $capabilities = new Capabilities(reputation: true, policy: $declared);
         self::assertSame($declared, $capabilities->policy());
-        self::assertSame('forbidden', $capabilities->toArray()['policy']['rights']['commercial']);
+        self::assertSame($declared->toArray(), $capabilities->toArray()['policy']);
     }
 }
 

@@ -1,0 +1,10 @@
+# PHPStan at the highest level, as glitchr-studio/ci's workflow runs it: no baseline, anything
+# PHPStan reports fails.
+parameters:
+    level: max
+    paths:
+        - .
+    excludePaths:
+        - vendor (?)
+        - docker (?)
+        - Tests/Fixtures (?)

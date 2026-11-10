@@ -74,29 +74,52 @@ final class WidgetLocalizerTest extends TestCase
         return $gateway;
     }
 
+    /** @return array<string, string> the catalogue's texts of the widget in that language, by name */
+    private static function texts(string $language): array
+    {
+        $catalogue = Yaml::parseFile(self::catalogue($language));
+        $texts = \is_array($catalogue) ? $catalogue['altcha'] ?? [] : [];
+        self::assertIsArray($texts);
+        $strings = [];
+        foreach ($texts as $name => $text) {
+            self::assertIsString($text, $language.'.'.$name);
+            $strings[(string) $name] = $text;
+        }
+
+        return $strings;
+    }
+
     /** @return array<string, string> the texts the widget's script registers */
     private static function registered(?string $inline): array
     {
         self::assertNotNull($inline);
         self::assertSame(1, preg_match('/\}\)\(("[^"]*"),(\{.*\})\);$/s', $inline, $found), $inline);
+        $language = json_decode($found[1] ?? '', true);
+        $texts = json_decode($found[2] ?? '', true);
+        self::assertIsString($language);
+        self::assertIsArray($texts);
+        $registered = ['@language' => $language];
+        foreach ($texts as $name => $text) {
+            self::assertIsString($text);
+            $registered[(string) $name] = $text;
+        }
 
-        return ['@language' => json_decode($found[1], true)] + json_decode($found[2], true);
+        return $registered;
     }
 
     public function testEveryTextIsTranslatedInEveryLanguageWithoutTutoiement(): void
     {
         foreach (self::LANGUAGES as $language) {
-            $texts = Yaml::parseFile(self::catalogue($language))['altcha'] ?? [];
+            $texts = self::texts($language);
             self::assertSame([], array_diff(AltchaGateway::TEXTS, array_keys($texts)), $language.': missing');
             self::assertSame([], array_diff(array_keys($texts), AltchaGateway::TEXTS), $language.': unknown to the widget');
             foreach ($texts as $name => $text) {
-                self::assertIsString($text);
                 self::assertNotSame('', trim($text), $language.'.'.$name);
             }
             self::assertStringContainsString('https://altcha.org/', $texts['footer'], $language.': the footer still links ALTCHA');
         }
 
-        $french = Yaml::parseFile(self::catalogue('fr'))['altcha'];
+        $french = self::texts('fr');
         self::assertSame('Je ne suis pas un robot', $french['label']);
         foreach ($french as $name => $text) {
             self::assertDoesNotMatchRegularExpression("/\\b(tu|te|toi|ton|ta|tes|t')\\b/iu", strip_tags($text), 'fr.'.$name.': the visitor is addressed as "vous"');
@@ -178,8 +201,11 @@ final class WidgetLocalizerTest extends TestCase
             ->getFormFactory();
 
         $view = $forms->createNamedBuilder('contact')->add('captcha', ChallengeType::class, ['action' => 'contact'])->getForm()->createView();
-        self::assertStringContainsString('"label":"Je ne suis pas un robot"', $view['captcha']->vars['omnishield_html']);
-        self::assertStringContainsString(' language="fr"', $view['captcha']->vars['omnishield_html']);
+        $html = $view['captcha']->vars['omnishield_html'];
+        self::assertInstanceOf(\Stringable::class, $html, 'printed when the field is');
+        $html = (string) $html;
+        self::assertStringContainsString('"label":"Je ne suis pas un robot"', $html);
+        self::assertStringContainsString(' language="fr"', $html);
     }
 
     public function testTheBundlePrintsTheWidgetInTheVisitorsLanguage(): void
@@ -192,7 +218,7 @@ final class WidgetLocalizerTest extends TestCase
         $container->register('request_stack', RequestStack::class)->setSynthetic(true)->setPublic(true);
         $container->register('translator', Translator::class)->setSynthetic(true)->setPublic(true);
         $bundle = new OmnishieldBundle();
-        $container->registerExtension($bundle->getContainerExtension());
+        $container->registerExtension($bundle->getContainerExtension() ?? self::fail('The bundle has no extension.'));
         $container->loadFromExtension('omnishield', ['gateways' => ['forms' => ['factory' => 'altcha', 'options' => ['hmac_key' => 'a-long-secret', 'cost' => 10]]]]);
         // What Twig is given, reached here as Twig reaches it.
         $container->addCompilerPass(new class implements CompilerPassInterface {
@@ -211,7 +237,11 @@ final class WidgetLocalizerTest extends TestCase
         self::assertStringContainsString(' language="fr"', $html);
         self::assertStringContainsString('"label":"Je ne suis pas un robot"', $html);
 
-        $widget = $container->get(WidgetLocalizer::class)->localize($container->get(Registry::class)->challenge('forms'))->widget();
+        $localizer = $container->get(WidgetLocalizer::class);
+        $registry = $container->get(Registry::class);
+        self::assertInstanceOf(WidgetLocalizer::class, $localizer);
+        self::assertInstanceOf(Registry::class, $registry);
+        $widget = $localizer->localize($registry->challenge('forms'))->widget();
         self::assertSame('Vérifié', self::registered($widget->inline)['verified']);
     }
 }

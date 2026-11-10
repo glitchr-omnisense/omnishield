@@ -58,6 +58,14 @@ final readonly class Verdict
     /** @return array<string, mixed> */
     public function toArray(): array
     {
-        return ['at' => $this->at?->format(\DATE_ATOM)] + get_object_vars($this);
+        return [
+            'at' => $this->at?->format(\DATE_ATOM),
+            'passed' => $this->passed,
+            'score' => $this->score,
+            'action' => $this->action,
+            'hostname' => $this->hostname,
+            'reasons' => $this->reasons,
+            'codes' => $this->codes,
+        ];
     }
 }

@@ -39,7 +39,7 @@ final class StubFactory extends GatewayFactory
 
     protected function build(Config $c): GatewayInterface
     {
-        return new StubGateway($this->replays ?? new InMemoryReplayStore(), (string) $c['secret'], $this->http);
+        return new StubGateway($this->replays ?? new InMemoryReplayStore(), $c->string('secret') ?? '', $this->http);
     }
 }
 

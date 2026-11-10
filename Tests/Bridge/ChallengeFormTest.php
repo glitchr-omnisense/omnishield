@@ -6,6 +6,7 @@ use Omnishield\Bridge\Symfony\Form\ChallengeType;
 use Omnishield\Bridge\Symfony\Validator\PassesChallenge;
 use Omnishield\Bridge\Symfony\Validator\PassesChallengeValidator;
 use Omnishield\Bridge\Twig\OmnishieldExtension;
+use Omnishield\Model\Verdict;
 use Omnishield\Registry;
 use Omnishield\Replay\InMemoryReplayStore;
 use Omnishield\Testing\FixedGateway;
@@ -19,6 +20,7 @@ use Symfony\Bridge\Twig\Form\TwigRendererEngine;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormRenderer;
@@ -28,6 +30,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidatorFactory;
 use Symfony\Component\Validator\ConstraintValidatorInterface;
+use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validation;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -69,7 +72,10 @@ final class ChallengeFormTest extends TestCase
             ->getFormFactory();
     }
 
-    /** @param array<string, string> $posted the request's fields beside the form's */
+    /**
+     * @param array<string, string> $posted  the request's fields beside the form's
+     * @param array<string, mixed>  $options the field's
+     */
     private function submit(FormFactoryInterface $factory, array $posted, array $options = []): FormInterface
     {
         $form = $factory->createNamedBuilder('contact')
@@ -87,7 +93,12 @@ final class ChallengeFormTest extends TestCase
     /** @return list<string> */
     private static function errors(FormInterface $form): array
     {
-        return array_map(static fn ($error) => $error->getMessage(), iterator_to_array($form->get('captcha')->getErrors()));
+        $errors = [];
+        foreach ($form->get('captcha')->getErrors(true) as $error) {
+            $errors[] = $error instanceof FormError ? $error->getMessage() : (string) $error;
+        }
+
+        return $errors;
     }
 
     public function testAValidTokenPassesOnceAndIsRefusedWhenReplayed(): void
@@ -102,9 +113,14 @@ final class ChallengeFormTest extends TestCase
         $replayed = $this->submit($factory, ['stub-token' => 'good-1']);
         self::assertFalse($replayed->isValid());
         self::assertSame(['The check that you are not a robot did not pass. Please try again.'], self::errors($replayed));
-        $violation = $replayed->get('captcha')->getErrors()[0]->getCause();
+        $error = $replayed->get('captcha')->getErrors()[0];
+        self::assertInstanceOf(FormError::class, $error);
+        $violation = $error->getCause();
+        self::assertInstanceOf(ConstraintViolationInterface::class, $violation);
         self::assertSame(PassesChallenge::FAILED_ERROR, $violation->getCode());
-        self::assertTrue($violation->getCause()->failedFor('duplicate'), 'the verdict, for whoever wants the reason');
+        $verdict = $violation->getCause();
+        self::assertInstanceOf(Verdict::class, $verdict);
+        self::assertTrue($verdict->failedFor('duplicate'), 'the verdict, for whoever wants the reason');
     }
 
     public function testAMissingOrForgedTokenIsRefused(): void

@@ -44,7 +44,7 @@ final class ChallengeType extends AbstractType
             if (\is_string($event->getData()) && '' !== $event->getData()) {
                 return;
             }
-            $field = $this->registry->challenge($options['gateway'])->widget($options['action'])->field;
+            $field = $this->registry->challenge(self::gateway($options))->widget(self::text($options, 'action'))->field;
             $request = $this->requests?->getCurrentRequest();
             $token = $request?->request->all()[$field] ?? null;
             $event->setData(\is_string($token) ? $token : '');
@@ -54,12 +54,12 @@ final class ChallengeType extends AbstractType
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
         // In the visitor's language, with the bridge's texts (WidgetLocalizer).
-        $challenge = $this->registry->challenge($options['gateway']);
-        $widget = ($this->localizer?->localize($challenge) ?? $challenge)->widget($options['action']);
+        $challenge = $this->registry->challenge(self::gateway($options));
+        $widget = ($this->localizer?->localize($challenge) ?? $challenge)->widget(self::text($options, 'action'));
         $view->vars['omnishield_widget'] = $widget;
         // Printed when the field is: a view built and thrown away (or a field taken out of it)
         // does not take the provider's script away from the view the page shows.
-        $view->vars['omnishield_html'] = $this->printer->later($widget, $options['nonce']);
+        $view->vars['omnishield_html'] = $this->printer->later($widget, self::text($options, 'nonce'));
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -74,7 +74,7 @@ final class ChallengeType extends AbstractType
             'required' => false,
             'label' => false,
             'error_bubbling' => false,
-            'constraints' => static fn (Options $options) => [new PassesChallenge(gateway: $options['gateway'], action: $options['action'], hostname: $options['hostname'])],
+            'constraints' => static fn (Options $options) => [new PassesChallenge(gateway: self::text($options, 'gateway'), action: self::text($options, 'action'), hostname: \is_bool($hostname = $options['hostname']) || \is_string($hostname) ? $hostname : null)],
         ]);
         $resolver->setAllowedTypes('gateway', 'string');
         $resolver->setAllowedTypes('action', ['null', 'string']);
@@ -89,5 +89,25 @@ final class ChallengeType extends AbstractType
     public function getBlockPrefix(): string
     {
         return 'omnishield_challenge';
+    }
+
+    /**
+     * The captcha's name: a string, as the resolver allows it (setAllowedTypes()).
+     *
+     * @param array<string, mixed> $options
+     */
+    private static function gateway(array $options): string
+    {
+        return self::text($options, 'gateway') ?? throw new \LogicException('No captcha named: set omnishield.challenge.gateway, or the field\'s gateway option.');
+    }
+
+    /**
+     * @param array<string, mixed>|Options $options
+     */
+    private static function text(array|Options $options, string $key): ?string
+    {
+        $value = $options[$key] ?? null;
+
+        return \is_string($value) ? $value : null;
     }
 }

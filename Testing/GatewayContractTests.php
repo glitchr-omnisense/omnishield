@@ -108,7 +108,7 @@ trait GatewayContractTests
     {
         $factory = $this->factory(self::silentHttp());
 
-        return $factory instanceof GatewayFactory ? array_values((array) $factory->createConfig($this->options())->get('omnishield.required_options', [])) : [];
+        return $factory instanceof GatewayFactory ? array_values(array_filter((array) $factory->createConfig($this->options())->get('omnishield.required_options', []), 'is_string')) : [];
     }
 
     /** Whether the gateway sends a key or a secret of the site's with its requests (an HTTP 401 or 403 is then an InvalidKeyException). */
@@ -195,7 +195,7 @@ trait GatewayContractTests
     {
         $gateway = $this->gateway();
         if ($gateway->capabilities()->thirdParty) {
-            self::assertTrue(true, 'a third-party gateway: its requests are checked on recorded answers');
+            $this->addToAssertionCount(1); // a third-party gateway: its requests are checked on recorded answers
 
             return;
         }
@@ -236,7 +236,7 @@ trait GatewayContractTests
             self::assertMatchesRegularExpression('~^https?://[^/]+$~', $origin, 'an origin, scheme and host');
         }
 
-        $verdict = $this->withoutRequests()->verify(new Attempt('', '192.0.2.10'));
+        $verdict = self::challenge($this->withoutRequests(), 'a missing token')->verify(new Attempt('', '192.0.2.10'));
         self::assertFalse($verdict->passed);
         self::assertSame([Verdict::MISSING], $verdict->reasons);
 
@@ -244,13 +244,13 @@ trait GatewayContractTests
             $challenge = $gateway->issue('contact');
             self::assertNotSame([], $challenge);
             self::assertNotSame($challenge, $gateway->issue('contact'), 'a fresh challenge each time');
-            self::assertIsString(json_encode($challenge, \JSON_THROW_ON_ERROR));
+            self::assertJson(json_encode($challenge, \JSON_THROW_ON_ERROR));
         }
         if ($gateway instanceof LocalizableInterface) {
             $localized = $gateway->localized('fr', ['label' => 'Contract']);
             self::assertInstanceOf($gateway::class, $localized);
             self::assertSame($gateway->getName(), $localized->getName());
-            self::assertSame([], array_filter($gateway->texts(), static fn ($text) => !\is_string($text)), 'texts: strings');
+            self::assertSame($gateway->texts(), array_values(array_filter($gateway->texts(), 'is_string')), 'texts: strings');
         }
     }
 
@@ -258,12 +258,12 @@ trait GatewayContractTests
     {
         $gateway = $this->gateway();
         if (!$gateway instanceof ClassifierInterface || $gateway->capabilities()->reports) {
-            self::assertTrue(true, 'not a classifier, or one that takes reports');
+            $this->addToAssertionCount(1); // not a classifier, or one that takes reports
 
             return;
         }
         $this->expectException(NotSupportedException::class);
-        $this->withoutRequests()->report($this->sampleSubmission(), true);
+        self::classifier($this->withoutRequests(), 'a report')->report($this->sampleSubmission(), true);
     }
 
     public function testAnEmptyIdentityIsUnknownWithoutAsking(): void
@@ -274,7 +274,7 @@ trait GatewayContractTests
 
             return;
         }
-        $reputation = $this->withoutRequests()->lookup(new Identity());
+        $reputation = self::reputation($this->withoutRequests(), 'an empty identity')->lookup(new Identity());
         self::assertFalse($reputation->known);
         self::assertSame([], $reputation->reasons);
     }
@@ -299,8 +299,7 @@ trait GatewayContractTests
             [$question, $answer] = match (true) {
                 $input instanceof Attempt => ['challenge', self::challenge($gateway, $name)->verify($input)],
                 $input instanceof Submission => ['classifier', self::classifier($gateway, $name)->classify($input)],
-                $input instanceof Identity => ['reputation', self::reputation($gateway, $name)->lookup($input)],
-                default => throw new \LogicException(\sprintf('Case "%s": an Attempt, a Submission or an Identity.', $name)),
+                default => ['reputation', self::reputation($gateway, $name)->lookup($input)],
             };
             $this->assertKeepsItsInvariants($gateway, $answer, $name);
             $was = match (true) {
@@ -325,7 +324,7 @@ trait GatewayContractTests
     public function testTheProvidersErrorsAreTheFamilysExceptions(): void
     {
         if (!$this->gateway()->capabilities()->thirdParty) {
-            self::assertTrue(true, 'a gateway that calls nobody has no provider to fail');
+            $this->addToAssertionCount(1); // a gateway that calls nobody has no provider to fail
 
             return;
         }
@@ -349,9 +348,7 @@ trait GatewayContractTests
                 }
                 self::assertNotNull($thrown, \sprintf('%s, %s: no exception.', $question, $failure));
                 self::assertInstanceOf($expected, $thrown, \sprintf('%s, %s: %s %s', $question, $failure, $thrown::class, $thrown->getMessage()));
-                if ($thrown instanceof ProviderException) {
-                    self::assertSame($gateway->getName(), $thrown->provider, 'the exception names the provider');
-                }
+                self::assertSame($gateway->getName(), $thrown->provider, 'the exception names the provider');
             }
         }
     }
@@ -362,19 +359,19 @@ trait GatewayContractTests
         if ($answer instanceof Verdict) {
             self::assertSame($answer->passed, [] === $answer->reasons, \sprintf('Case "%s": a Verdict passes when it has no reason.', $case));
             self::assertSame([], array_diff($answer->reasons, [Verdict::MISSING, Verdict::INVALID, Verdict::EXPIRED, Verdict::DUPLICATE, Verdict::SPENT, Verdict::ACTION, Verdict::HOSTNAME, Verdict::SCORE]), \sprintf('Case "%s": the family\'s reasons.', $case));
-            self::assertSame([], array_filter($answer->codes, static fn ($code) => !\is_string($code)), 'codes: strings');
+            self::assertSame($answer->codes, array_values(array_filter($answer->codes, 'is_string')), 'codes: strings');
             if (null !== $answer->score) {
                 self::assertTrue($capabilities->scores, \sprintf('Case "%s": a score from a gateway that says it does not score.', $case));
                 self::assertGreaterThanOrEqual(0.0, $answer->score);
                 self::assertLessThanOrEqual(1.0, $answer->score);
             }
-            self::assertIsArray($answer->toArray());
+            self::assertNotSame([], $answer->toArray());
 
             return;
         }
         if ($answer instanceof Classification) {
             self::assertInstanceOf(Label::class, $answer->label);
-            self::assertSame([], array_filter($answer->reasons, static fn ($reason) => !\is_string($reason)), 'reasons: strings');
+            self::assertSame($answer->reasons, array_values(array_filter($answer->reasons, 'is_string')), 'reasons: strings');
 
             return;
         }
@@ -383,7 +380,7 @@ trait GatewayContractTests
         self::assertGreaterThanOrEqual(0, $answer->frequency);
         self::assertGreaterThanOrEqual(0.0, $answer->confidence);
         self::assertLessThanOrEqual(100.0, $answer->confidence);
-        self::assertIsArray($answer->toArray());
+        self::assertNotSame([], $answer->toArray());
     }
 
     /** @return array<string, \Closure(GatewayInterface): mixed> each question the gateway answers, asked once */
@@ -391,15 +388,15 @@ trait GatewayContractTests
     {
         $questions = [];
         if ($gateway instanceof ChallengeInterface) {
-            $questions['verify()'] = static fn (ChallengeInterface $g) => $g->verify(new Attempt('a-token-of-the-visitor', '192.0.2.10'));
+            $questions['verify()'] = static fn (GatewayInterface $g) => self::challenge($g, 'verify()')->verify(new Attempt('a-token-of-the-visitor', '192.0.2.10'));
         }
         if ($gateway instanceof ClassifierInterface) {
             $submission = $this->sampleSubmission();
-            $questions['classify()'] = static fn (ClassifierInterface $g) => $g->classify($submission);
+            $questions['classify()'] = static fn (GatewayInterface $g) => self::classifier($g, 'classify()')->classify($submission);
         }
         if ($gateway instanceof ReputationInterface) {
             $identity = $this->sampleIdentity();
-            $questions['lookup()'] = static fn (ReputationInterface $g) => $g->lookup($identity);
+            $questions['lookup()'] = static fn (GatewayInterface $g) => self::reputation($g, 'lookup()')->lookup($identity);
         }
 
         return $questions;

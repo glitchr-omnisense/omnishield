@@ -34,6 +34,7 @@ final readonly class Reputation
     ) {
     }
 
+    /** @param array<string, mixed> $data what the list answered */
     public static function unknown(array $data = []): self
     {
         return new self(false, data: $data);
@@ -47,6 +48,13 @@ final readonly class Reputation
     /** @return array<string, mixed> */
     public function toArray(): array
     {
-        return ['lastSeen' => $this->lastSeen?->format(\DATE_ATOM)] + get_object_vars($this);
+        return [
+            'lastSeen' => $this->lastSeen?->format(\DATE_ATOM),
+            'known' => $this->known,
+            'frequency' => $this->frequency,
+            'confidence' => $this->confidence,
+            'reasons' => $this->reasons,
+            'data' => $this->data,
+        ];
     }
 }

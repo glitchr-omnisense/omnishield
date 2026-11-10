@@ -63,6 +63,18 @@ final readonly class Capabilities implements CapabilitiesInterface
     /** @return array<string, mixed> */
     public function toArray(): array
     {
-        return ['questions' => $this->questions()] + array_diff_key(get_object_vars($this), ['policy' => true]) + ['policy' => $this->policy->toArray()];
+        return [
+            'questions' => $this->questions(),
+            'challenge' => $this->challenge,
+            'classifier' => $this->classifier,
+            'reputation' => $this->reputation,
+            'thirdParty' => $this->thirdParty,
+            'cookies' => $this->cookies,
+            'scores' => $this->scores,
+            'actions' => $this->actions,
+            'reports' => $this->reports,
+            'reads' => $this->reads,
+            'policy' => $this->policy->toArray(),
+        ];
     }
 }

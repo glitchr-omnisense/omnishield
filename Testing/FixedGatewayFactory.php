@@ -3,8 +3,8 @@
 namespace Omnishield\Testing;
 
 use Omnishield\Config;
+use Omnishield\Exception\InvalidConfigException;
 use Omnishield\GatewayFactory;
-use Omnishield\GatewayInterface;
 
 /**
  * The fixed gateway, by configuration - for an application's test
@@ -15,6 +15,14 @@ use Omnishield\GatewayInterface;
  */
 final class FixedGatewayFactory extends GatewayFactory
 {
+    /** @param array<string, mixed> $options */
+    public function create(array $options = []): FixedGateway
+    {
+        $gateway = parent::create($options);
+
+        return $gateway instanceof FixedGateway ? $gateway : throw new InvalidConfigException('The "fixed" factory built another gateway.');
+    }
+
     protected function populate(Config $c): void
     {
         $c->defaults([
@@ -25,7 +33,7 @@ final class FixedGatewayFactory extends GatewayFactory
         ]);
     }
 
-    protected function build(Config $c): GatewayInterface
+    protected function build(Config $c): FixedGateway
     {
         return new FixedGateway($c->bool('pass'));
     }

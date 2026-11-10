@@ -12,6 +12,7 @@ final class InMemoryReplayStore implements ReplayStoreInterface
     /** @var array<string, int> the spent tokens and until when they are kept */
     private array $spent = [];
 
+    /** @param (\Closure(): int)|null $clock the time now, as a Unix timestamp; time() when null */
     public function __construct(private readonly ?\Closure $clock = null)
     {
     }

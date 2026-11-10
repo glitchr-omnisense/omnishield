@@ -147,7 +147,7 @@ final class OmnishieldBundle extends AbstractBundle
     {
         // The widgets' scripts from the site: ALTCHA's served by ScriptListener, and its gateways' default.
         $scripts = [];
-        if (($config['serve_scripts'] ?? true) && class_exists(AltchaGatewayFactory::class) && \defined(AltchaGatewayFactory::class.'::SCRIPT_PATH')) {
+        if ($config['serve_scripts'] && class_exists(AltchaGatewayFactory::class) && \defined(AltchaGatewayFactory::class.'::SCRIPT_PATH')) {
             $scripts[AltchaGatewayFactory::SCRIPT_PATH] = AltchaGatewayFactory::SCRIPT_FILE;
             foreach ($config['gateways'] as $name => $gateway) {
                 if ('altcha' === $gateway['factory'] && !\array_key_exists('script', (array) $gateway['options'])) {
@@ -168,7 +168,7 @@ final class OmnishieldBundle extends AbstractBundle
         }
 
         foreach (self::FACTORIES as $factory) {
-            if (!class_exists($factory) || !is_subclass_of($factory, GatewayFactoryInterface::class)) {
+            if (!class_exists($factory)) {
                 continue;
             }
             $definition = $services->set($factory)->autowire()->tag('omnishield.gateway_factory');
