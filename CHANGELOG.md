@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-13
+
 ### Added
 
 - omnisense/omnishield on omnisense/contracts, the kernel every omni family builds on, with usage
@@ -33,3 +35,9 @@
   and the previous - now a copy of the client's exception, the same class and code - have the key's
   parameters, the URL's user part and the request's secrets masked as `***` (`Http\Redaction`),
   and no trace of the chain keeps its arguments, a 5xx's or a 429's included.
+
+### Changed
+
+- Requires `omnisense/contracts: ^1.0`: stable versions, so `composer require omnisense/omnishield` installs in a project at the default minimum-stability. `extra.branch-alias` names 1.x (`1.x-dev`); the CI (`.github/workflows/ci.yml`, glitchr-studio/ci's shared workflow) and the release on a tag (`release.yml`).
+- The package passes its CI alone: `phpstan-baseline.neon`, empty (the shared workflow requires the file; nothing is accepted); require-dev gains `omnishield/altcha` (the widget localizer's tests and the bare check use it), `symfony/twig-bridge` (the form field's rendering test) and `phpstan/phpstan`; PHPStan leaves the bundle's list of the gateway packages it knows, optional, to `class_exists()`.
+

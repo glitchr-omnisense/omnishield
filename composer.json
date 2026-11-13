@@ -25,10 +25,12 @@
     "require": {
         "php": ">=8.2",
         "ext-mbstring": "*",
-        "omnisense/contracts": "^1.0@dev",
+        "omnisense/contracts": "^1.0",
         "symfony/http-client-contracts": "^3.0"
     },
     "require-dev": {
+        "omnishield/altcha": "^1.0@dev",
+        "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^11.0",
         "psr/cache": "^2.0|^3.0",
         "symfony/cache": "^6.4|^7.0|^8.0",
@@ -40,6 +42,7 @@
         "symfony/http-kernel": "^6.4|^7.0|^8.0",
         "symfony/routing": "^6.4|^7.0|^8.0",
         "symfony/translation": "^6.4|^7.0|^8.0",
+        "symfony/twig-bridge": "^6.4|^7.0|^8.0",
         "symfony/validator": "^6.4|^7.0|^8.0",
         "symfony/yaml": "^6.4|^7.0|^8.0",
         "twig/twig": "^3.0"
@@ -81,6 +84,7 @@
             "Omnishield\\Tests\\": "Tests/"
         }
     },
+    "extra": {"branch-alias": {"dev-1.x": "1.x-dev"}},
     "config": {
         "sort-packages": true
     }

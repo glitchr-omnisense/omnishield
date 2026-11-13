@@ -79,17 +79,27 @@ composer require omnisense/omnishield omnishield/altcha omnishield/disposable
 ```
 
 ```php
+require __DIR__.'/vendor/autoload.php';
+
 use Omnishield\Altcha\AltchaGatewayFactory;
 use Omnishield\Disposable\DisposableGatewayFactory;
+use Omnishield\Model\Identity;
 use Omnishield\Registry;
+use Omnishield\Replay\InMemoryReplayStore;
 
-$registry = new Registry([new AltchaGatewayFactory($spentTokens), new DisposableGatewayFactory()], [
-    'forms' => ['factory' => 'altcha', 'options' => ['hmac_key' => getenv('ALTCHA_HMAC_KEY')]],
+$registry = new Registry([new AltchaGatewayFactory(new InMemoryReplayStore()), new DisposableGatewayFactory()], [
+    'forms' => ['factory' => 'altcha', 'options' => ['hmac_key' => 'a-long-random-secret-of-the-site']],
     'emails' => ['factory' => 'disposable'],
 ]);
+
+echo $registry->challenge('forms')->widget('contact')->tag, "\n";                                       // altcha-widget
+var_dump($registry->reputation('emails')->lookup(new Identity(email: 'someone@mailinator.com'))->known);  // bool(true)
 ```
 
-No bundle, no container: a factory per gateway package, the registry built by hand.
+No account and no key: ALTCHA is a proof of work the site issues and checks itself, the disposable
+domains a list shipped in the package; nothing leaves the machine. No bundle, no container: a
+factory per gateway package, the registry built by hand. Turnstile, reCAPTCHA and Akismet need an
+account with their provider (StopForumSpam only to report): each provider's README says what.
 [docs/installation.md](docs/installation.md) opens on a whole script that runs as it is.
 
 ## Symfony

@@ -1,5 +1,8 @@
-# PHPStan at the highest level, as glitchr-studio/ci's workflow runs it: no baseline, anything
-# PHPStan reports fails.
+# PHPStan at the highest level, as glitchr-studio/ci's workflow runs it. phpstan-baseline.neon is
+# empty (the workflow requires the file): nothing is accepted, anything PHPStan reports fails.
+includes:
+    - phpstan-baseline.neon
+
 parameters:
     level: max
     paths:
@@ -8,3 +11,10 @@ parameters:
         - vendor (?)
         - docker (?)
         - Tests/Fixtures (?)
+    ignoreErrors:
+        # The gateway packages are optional: the bundle lists those it knows and registers the ones
+        # installed (class_exists). The package's CI analyses it with omnishield/altcha only.
+        -
+            identifier: class.notFound
+            path: Bridge/Symfony/OmnishieldBundle.php
+            reportUnmatched: false
